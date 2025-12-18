@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../supabase/client";
+import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
@@ -8,34 +8,40 @@ export const AuthProvider = ({ children }) => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load session on refresh
+  // 🔹 Check session on refresh
   useEffect(() => {
-    const loadUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        setUser(data.user);
-        fetchReports(data.user.id);
-      }
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setUser(data?.session?.user || null);
       setIsLoading(false);
     };
-    loadUser();
+
+    getSession();
   }, []);
 
-  const signup = async ({ name, email, password, age, gender }) => {
-    setIsLoading(true);
+  // 🔹 LOGIN
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
+    if (error) return { success: false, error };
+    setUser(data.user);
+    return { success: true };
+  };
+
+  // 🔹 SIGNUP
+  const signup = async ({ email, password, name, age, gender }) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    if (error) {
-      setIsLoading(false);
-      return { success: false, error: error.message };
-    }
+    if (error) return { success: false, error };
 
-    // Insert profile
-    await supabase.from("users").insert({
+    // 👇 profile insert
+    await supabase.from("profiles").insert({
       id: data.user.id,
       name,
       age,
@@ -43,47 +49,23 @@ export const AuthProvider = ({ children }) => {
     });
 
     setUser(data.user);
-    setIsLoading(false);
     return { success: true };
   };
 
-  const login = async (email, password) => {
-    setIsLoading(true);
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setIsLoading(false);
-      return { success: false, error: error.message };
-    }
-
-    setUser(data.user);
-    fetchReports(data.user.id);
-    setIsLoading(false);
-    return { success: true };
-  };
-
+  // 🔹 LOGOUT
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    setReports([]);
   };
 
-  const fetchReports = async (userId) => {
+  // 🔹 FETCH REPORTS
+  const fetchReports = async () => {
     const { data } = await supabase
       .from("reports")
       .select("*")
-      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     setReports(data || []);
-  };
-
-  const getReportById = (id) => {
-    return reports.find((r) => r.id === id);
   };
 
   return (
@@ -92,11 +74,11 @@ export const AuthProvider = ({ children }) => {
         user,
         reports,
         isLoading,
-        isAuthenticated: !!user,
-        signup,
         login,
+        signup,
         logout,
-        getReportById,
+        fetchReports,
+        isAuthenticated: !!user,
       }}
     >
       {children}
