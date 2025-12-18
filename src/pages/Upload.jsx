@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabase/client";
+import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import UploadCard from "../components/UploadCard.jsx";

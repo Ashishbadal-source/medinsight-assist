@@ -1,87 +1,85 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../supabase/client";
 
 const AuthContext = createContext(null);
 
-// Dummy user data
-const dummyUser = {
-  id: "user-001",
-  name: "Dr. Sarah Johnson",
-  email: "sarah.johnson@clinic.com",
-  age: 34,
-  gender: "Female",
-  createdAt: "2024-06-15",
-};
-
-// Dummy reports data
-const dummyReports = [
-  {
-    id: "report-001",
-    type: "Blood Test",
-    date: "2024-12-18",
-    time: "10:30 AM",
-    confidence: 87,
-    summary: "Complete Blood Count showing elevated WBC and borderline cholesterol",
-    status: "Completed",
-  },
-  {
-    id: "report-002",
-    type: "X-ray",
-    date: "2024-12-10",
-    time: "02:15 PM",
-    confidence: 92,
-    summary: "Chest X-ray analysis with clear lung fields",
-    status: "Completed",
-  },
-  {
-    id: "report-003",
-    type: "ECG",
-    date: "2024-11-28",
-    time: "09:00 AM",
-    confidence: 78,
-    summary: "ECG showing normal sinus rhythm with minor variations",
-    status: "Completed",
-  },
-  {
-    id: "report-004",
-    type: "Radiology",
-    date: "2024-11-15",
-    time: "11:45 AM",
-    confidence: 85,
-    summary: "MRI scan of lower back showing mild disc degeneration",
-    status: "Completed",
-  },
-];
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [reports, setReports] = useState(dummyReports);
-  const [isLoading, setIsLoading] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load session on refresh
+  useEffect(() => {
+    const loadUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        setUser(data.user);
+        fetchReports(data.user.id);
+      }
+      setIsLoading(false);
+    };
+    loadUser();
+  }, []);
+
+  const signup = async ({ name, email, password, age, gender }) => {
+    setIsLoading(true);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      setIsLoading(false);
+      return { success: false, error: error.message };
+    }
+
+    // Insert profile
+    await supabase.from("users").insert({
+      id: data.user.id,
+      name,
+      age,
+      gender,
+    });
+
+    setUser(data.user);
+    setIsLoading(false);
+    return { success: true };
+  };
 
   const login = async (email, password) => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setUser(dummyUser);
-    setIsLoading(false);
-    return { success: true };
-  };
 
-  const signup = async (userData) => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setUser({
-      ...dummyUser,
-      ...userData,
-      id: `user-${Date.now()}`,
-      createdAt: new Date().toISOString().split("T")[0],
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
+
+    if (error) {
+      setIsLoading(false);
+      return { success: false, error: error.message };
+    }
+
+    setUser(data.user);
+    fetchReports(data.user.id);
     setIsLoading(false);
     return { success: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
+    setReports([]);
+  };
+
+  const fetchReports = async (userId) => {
+    const { data } = await supabase
+      .from("reports")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    setReports(data || []);
   };
 
   const getReportById = (id) => {
@@ -95,8 +93,8 @@ export const AuthProvider = ({ children }) => {
         reports,
         isLoading,
         isAuthenticated: !!user,
-        login,
         signup,
+        login,
         logout,
         getReportById,
       }}
@@ -106,10 +104,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
