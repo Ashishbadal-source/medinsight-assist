@@ -1,17 +1,28 @@
 import { Link, useLocation } from "react-router-dom";
-import { Activity, Menu, X } from "lucide-react";
+import { Activity, Menu, X, UserCircle } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext.jsx";
+import LogoutButton from "./LogoutButton.jsx";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, user } = useAuth();
 
-  const navLinks = [
+  const publicLinks = [
     { path: "/", label: "Home" },
-    { path: "/upload", label: "Upload Reports" },
-    { path: "/how-it-works", label: "How It Works" },
+    { path: "/login", label: "Login" },
+    { path: "/signup", label: "Signup" },
     { path: "/disclaimer", label: "Disclaimer" },
   ];
+
+  const authenticatedLinks = [
+    { path: "/profile", label: "Profile" },
+    { path: "/upload", label: "Upload Report" },
+    { path: "/how-it-works", label: "How It Works" },
+  ];
+
+  const navLinks = isAuthenticated ? authenticatedLinks : publicLinks;
 
   const isActive = (path) => location.pathname === path;
 
@@ -43,6 +54,18 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            
+            {isAuthenticated && (
+              <>
+                <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
+                  <UserCircle className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">
+                    {user?.name?.split(" ")[0]}
+                  </span>
+                </div>
+                <LogoutButton />
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -59,6 +82,15 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden pb-4">
+            {isAuthenticated && (
+              <div className="flex items-center gap-2 px-4 py-3 mb-2 border-b border-border">
+                <UserCircle className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">
+                  {user?.name}
+                </span>
+              </div>
+            )}
+            
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -73,6 +105,12 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            
+            {isAuthenticated && (
+              <div className="mt-2 px-4">
+                <LogoutButton />
+              </div>
+            )}
           </div>
         )}
       </div>
