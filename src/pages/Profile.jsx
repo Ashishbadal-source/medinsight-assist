@@ -7,16 +7,34 @@ import ReportHistoryCard from "../components/ReportHistoryCard.jsx";
 import ReportTimeline from "../components/ReportTimeline.jsx";
 import DisclaimerBox from "../components/DisclaimerBox.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useEffect } from "react";
 
 const Profile = () => {
-  const { user, reports, isAuthenticated } = useAuth();
+  const { user, reports, isAuthenticated, fetchReports } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if not logged in
+  // if (!isAuthenticated) {
+  //   navigate("/login");
+  //   return null;
+  // }
+
+
+  useEffect(() => {
   if (!isAuthenticated) {
     navigate("/login");
-    return null;
   }
+}, [isAuthenticated]);
+
+
+useEffect(() => {
+  if (isAuthenticated) {
+    fetchReports();
+  }
+}, [isAuthenticated]);
+
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

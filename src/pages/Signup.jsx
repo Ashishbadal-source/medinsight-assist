@@ -99,11 +99,30 @@ const Signup = () => {
     gender: "",
   });
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const res = await signup(form);
+  //   if (!res.success) alert(res.error.message);
+  // };
+
+
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await signup(form);
-    if (!res.success) alert(res.error.message);
-  };
+  e.preventDefault();
+
+  const res = await signup({
+    email: form.email,
+    password: form.password,
+    name: form.name,
+    age: form.age,
+    gender: form.gender,
+  });
+
+  if (!res.success) {
+    alert(res.error.message);
+  }
+};
+
 
   return (
     <form onSubmit={handleSubmit}>
