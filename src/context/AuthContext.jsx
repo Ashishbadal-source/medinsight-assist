@@ -213,56 +213,47 @@ export const AuthProvider = ({ children }) => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // session restore
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data?.session?.user || null);
+      setUser(data?.session?.user ?? null);
       setIsLoading(false);
     });
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null);
-      }
-    );
-
-    return () => listener.subscription.unsubscribe();
   }, []);
-
-  const login = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { success: false, error };
-    return { success: true };
-  };
 
   const signup = async ({ email, password, name, age, gender }) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) return { success: false, error };
 
-    const { error: profileError } = await supabase.from("profiles").insert({
+    await supabase.from("profiles").insert({
       id: data.user.id,
       name,
       age,
       gender,
     });
 
-    if (profileError) return { success: false, error: profileError };
+    setUser(data.user);
+    return { success: true };
+  };
 
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) return { success: false, error };
+    setUser(data.user);
     return { success: true };
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    setReports([]);
   };
 
   const fetchReports = async () => {
-    if (!user) return;
     const { data } = await supabase
       .from("reports")
       .select("*")
-      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     setReports(data || []);
@@ -274,11 +265,11 @@ export const AuthProvider = ({ children }) => {
         user,
         reports,
         isLoading,
-        isAuthenticated: !!user,
-        login,
         signup,
+        login,
         logout,
         fetchReports,
+        isAuthenticated: !!user,
       }}
     >
       {children}

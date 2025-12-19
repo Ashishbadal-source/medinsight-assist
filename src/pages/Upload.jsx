@@ -1,169 +1,247 @@
-// import { useState } from "react";
+// // import { useState } from "react";
+// // import { useNavigate } from "react-router-dom";
+// // import { supabase } from "../lib/supabase";
+// // import { useAuth } from "../context/AuthContext";
+// // import Navbar from "../components/Navbar.jsx";
+// // import Footer from "../components/Footer.jsx";
+// // import UploadCard from "../components/UploadCard.jsx";
+// // import DisclaimerBox from "../components/DisclaimerBox.jsx";
+// // const { user } = useAuth();
+
+// // const Upload = () => {
+// //   const navigate = useNavigate();
+// //   const [selectedFile, setSelectedFile] = useState(null);
+// //   const [isAnalyzing, setIsAnalyzing] = useState(false);
+// //   const [formData, setFormData] = useState({
+// //     category: "",
+// //     age: "",
+// //     gender: "",
+// //     symptoms: "",
+// //   });
+
+// //   const categories = [
+// //     { value: "blood-test", label: "Blood Test Report" },
+// //     { value: "radiology", label: "Radiology Report" },
+// //     { value: "xray", label: "X-ray Image" },
+// //     { value: "ecg", label: "ECG Report" },
+// //   ];
+
+// //   const handleFileSelect = (file) => {
+// //     setSelectedFile(file);
+// //   };
+
+// //   const handleInputChange = (e) => {
+// //     const { name, value } = e.target;
+// //     setFormData((prev) => ({ ...prev, [name]: value }));
+// //   };
+
+// //   const handleAnalyze = async () => {
+// //     if (!selectedFile) return;
+
+// //     setIsAnalyzing(true);
+    
+// //     // Simulate API call
+// //     // setTimeout(() => {
+// //     //   setIsAnalyzing(false);
+// //     //   navigate("/dashboard");
+// //     // }, 2500);
+
+
+
+    
+
+// // await supabase.from("reports").insert({
+// //   user_id: user.id,
+// //   category: formData.category,
+// //   symptoms: formData.symptoms,
+// // });
+
+// //   };
+
+// //   return (
+// //     <div className="min-h-screen flex flex-col bg-background">
+// //       <Navbar />
+
+// //       <main className="flex-1 py-12 px-4">
+// //         <div className="max-w-3xl mx-auto">
+// //           <div className="text-center mb-8">
+// //             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+// //               Upload Medical Report
+// //             </h1>
+// //             <p className="text-muted-foreground">
+// //               Select your report type and upload the file for analysis
+// //             </p>
+// //           </div>
+
+// //           <div className="space-y-6">
+// //             <UploadCard
+// //               onFileSelect={handleFileSelect}
+// //               selectedFile={selectedFile}
+// //               isAnalyzing={isAnalyzing}
+// //             />
+
+// //             {/* Report Category */}
+// //             <div className="medical-card">
+// //               <h3 className="text-lg font-semibold text-foreground mb-4">Report Details</h3>
+              
+// //               <div className="space-y-4">
+// //                 <div>
+// //                   <label className="block text-sm font-medium text-foreground mb-2">
+// //                     Report Category *
+// //                   </label>
+// //                   <select
+// //                     name="category"
+// //                     value={formData.category}
+// //                     onChange={handleInputChange}
+// //                     className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+// //                   >
+// //                     <option value="">Select category</option>
+// //                     {categories.map((cat) => (
+// //                       <option key={cat.value} value={cat.value}>
+// //                         {cat.label}
+// //                       </option>
+// //                     ))}
+// //                   </select>
+// //                 </div>
+
+// //                 <div className="grid md:grid-cols-2 gap-4">
+// //                   <div>
+// //                     <label className="block text-sm font-medium text-foreground mb-2">
+// //                       Patient Age (optional)
+// //                     </label>
+// //                     <input
+// //                       type="number"
+// //                       name="age"
+// //                       value={formData.age}
+// //                       onChange={handleInputChange}
+// //                       placeholder="e.g., 45"
+// //                       className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+// //                     />
+// //                   </div>
+
+// //                   <div>
+// //                     <label className="block text-sm font-medium text-foreground mb-2">
+// //                       Gender (optional)
+// //                     </label>
+// //                     <select
+// //                       name="gender"
+// //                       value={formData.gender}
+// //                       onChange={handleInputChange}
+// //                       className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
+// //                     >
+// //                       <option value="">Select gender</option>
+// //                       <option value="male">Male</option>
+// //                       <option value="female">Female</option>
+// //                       <option value="other">Other</option>
+// //                     </select>
+// //                   </div>
+// //                 </div>
+
+// //                 <div>
+// //                   <label className="block text-sm font-medium text-foreground mb-2">
+// //                     Symptoms (optional)
+// //                   </label>
+// //                   <textarea
+// //                     name="symptoms"
+// //                     value={formData.symptoms}
+// //                     onChange={handleInputChange}
+// //                     rows={3}
+// //                     placeholder="Describe any symptoms or relevant medical history..."
+// //                     className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+// //                   />
+// //                 </div>
+// //               </div>
+// //             </div>
+
+// //             <DisclaimerBox />
+
+// //             <button
+// //               onClick={handleAnalyze}
+// //               disabled={!selectedFile || isAnalyzing}
+// //               className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+// //             >
+// //               {isAnalyzing ? "Analyzing Report..." : "Analyze Report"}
+// //             </button>
+// //           </div>
+// //         </div>
+// //       </main>
+
+// //       <Footer />
+// //     </div>
+// //   );
+// // };
+
+// // export default Upload;
+
+
+
+
+
+
+
+
+
+// import { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { supabase } from "../lib/supabase";
 // import { useAuth } from "../context/AuthContext";
-// import Navbar from "../components/Navbar.jsx";
-// import Footer from "../components/Footer.jsx";
-// import UploadCard from "../components/UploadCard.jsx";
-// import DisclaimerBox from "../components/DisclaimerBox.jsx";
-// const { user } = useAuth();
+// import Navbar from "../components/Navbar";
+// import Footer from "../components/Footer";
 
 // const Upload = () => {
+//   const { user, isAuthenticated } = useAuth();
 //   const navigate = useNavigate();
-//   const [selectedFile, setSelectedFile] = useState(null);
-//   const [isAnalyzing, setIsAnalyzing] = useState(false);
-//   const [formData, setFormData] = useState({
-//     category: "",
-//     age: "",
-//     gender: "",
-//     symptoms: "",
-//   });
 
-//   const categories = [
-//     { value: "blood-test", label: "Blood Test Report" },
-//     { value: "radiology", label: "Radiology Report" },
-//     { value: "xray", label: "X-ray Image" },
-//     { value: "ecg", label: "ECG Report" },
-//   ];
+//   const [type, setType] = useState("");
+//   const [summary, setSummary] = useState("");
+//   const [isLoading, setIsLoading] = useState(false);
 
-//   const handleFileSelect = (file) => {
-//     setSelectedFile(file);
-//   };
+//   useEffect(() => {
+//     if (!isAuthenticated) navigate("/login");
+//   }, [isAuthenticated]);
 
-//   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prev) => ({ ...prev, [name]: value }));
-//   };
+//   const handleSubmit = async () => {
+//     setIsLoading(true);
 
-//   const handleAnalyze = async () => {
-//     if (!selectedFile) return;
+//     const { error } = await supabase.from("reports").insert({
+//       user_id: user.id,
+//       type,
+//       summary,
+//       confidence: 80,
+//     });
 
-//     setIsAnalyzing(true);
-    
-//     // Simulate API call
-//     // setTimeout(() => {
-//     //   setIsAnalyzing(false);
-//     //   navigate("/dashboard");
-//     // }, 2500);
+//     setIsLoading(false);
 
-
-
-    
-
-// await supabase.from("reports").insert({
-//   user_id: user.id,
-//   category: formData.category,
-//   symptoms: formData.symptoms,
-// });
-
+//     if (!error) navigate("/profile");
+//     else console.error(error);
 //   };
 
 //   return (
-//     <div className="min-h-screen flex flex-col bg-background">
+//     <div className="min-h-screen flex flex-col">
 //       <Navbar />
 
-//       <main className="flex-1 py-12 px-4">
-//         <div className="max-w-3xl mx-auto">
-//           <div className="text-center mb-8">
-//             <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-//               Upload Medical Report
-//             </h1>
-//             <p className="text-muted-foreground">
-//               Select your report type and upload the file for analysis
-//             </p>
-//           </div>
+//       <main className="flex-1 max-w-xl mx-auto p-6">
+//         <input
+//           placeholder="Report Type"
+//           className="w-full border p-3 mb-4"
+//           value={type}
+//           onChange={(e) => setType(e.target.value)}
+//         />
 
-//           <div className="space-y-6">
-//             <UploadCard
-//               onFileSelect={handleFileSelect}
-//               selectedFile={selectedFile}
-//               isAnalyzing={isAnalyzing}
-//             />
+//         <textarea
+//           placeholder="Summary"
+//           className="w-full border p-3 mb-4"
+//           value={summary}
+//           onChange={(e) => setSummary(e.target.value)}
+//         />
 
-//             {/* Report Category */}
-//             <div className="medical-card">
-//               <h3 className="text-lg font-semibold text-foreground mb-4">Report Details</h3>
-              
-//               <div className="space-y-4">
-//                 <div>
-//                   <label className="block text-sm font-medium text-foreground mb-2">
-//                     Report Category *
-//                   </label>
-//                   <select
-//                     name="category"
-//                     value={formData.category}
-//                     onChange={handleInputChange}
-//                     className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
-//                   >
-//                     <option value="">Select category</option>
-//                     {categories.map((cat) => (
-//                       <option key={cat.value} value={cat.value}>
-//                         {cat.label}
-//                       </option>
-//                     ))}
-//                   </select>
-//                 </div>
-
-//                 <div className="grid md:grid-cols-2 gap-4">
-//                   <div>
-//                     <label className="block text-sm font-medium text-foreground mb-2">
-//                       Patient Age (optional)
-//                     </label>
-//                     <input
-//                       type="number"
-//                       name="age"
-//                       value={formData.age}
-//                       onChange={handleInputChange}
-//                       placeholder="e.g., 45"
-//                       className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="block text-sm font-medium text-foreground mb-2">
-//                       Gender (optional)
-//                     </label>
-//                     <select
-//                       name="gender"
-//                       value={formData.gender}
-//                       onChange={handleInputChange}
-//                       className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent"
-//                     >
-//                       <option value="">Select gender</option>
-//                       <option value="male">Male</option>
-//                       <option value="female">Female</option>
-//                       <option value="other">Other</option>
-//                     </select>
-//                   </div>
-//                 </div>
-
-//                 <div>
-//                   <label className="block text-sm font-medium text-foreground mb-2">
-//                     Symptoms (optional)
-//                   </label>
-//                   <textarea
-//                     name="symptoms"
-//                     value={formData.symptoms}
-//                     onChange={handleInputChange}
-//                     rows={3}
-//                     placeholder="Describe any symptoms or relevant medical history..."
-//                     className="w-full p-3 rounded-lg border border-border bg-background text-foreground focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-//                   />
-//                 </div>
-//               </div>
-//             </div>
-
-//             <DisclaimerBox />
-
-//             <button
-//               onClick={handleAnalyze}
-//               disabled={!selectedFile || isAnalyzing}
-//               className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-//             >
-//               {isAnalyzing ? "Analyzing Report..." : "Analyze Report"}
-//             </button>
-//           </div>
-//         </div>
+//         <button
+//           onClick={handleSubmit}
+//           disabled={isLoading}
+//           className="w-full bg-primary text-white p-3 rounded"
+//         >
+//           {isLoading ? "Saving..." : "Save Report"}
+//         </button>
 //       </main>
 
 //       <Footer />
@@ -181,70 +259,46 @@
 
 
 
-import { useState, useEffect } from "react";
+
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 
 const Upload = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [symptoms, setSymptoms] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [type, setType] = useState("");
-  const [summary, setSummary] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  if (!isAuthenticated) {
+    navigate("/login");
+    return null;
+  }
 
-  useEffect(() => {
-    if (!isAuthenticated) navigate("/login");
-  }, [isAuthenticated]);
-
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const handleUpload = async () => {
+    setLoading(true);
 
     const { error } = await supabase.from("reports").insert({
       user_id: user.id,
-      type,
-      summary,
-      confidence: 80,
+      category: "blood-test",
+      symptoms,
     });
 
-    setIsLoading(false);
-
+    setLoading(false);
     if (!error) navigate("/profile");
-    else console.error(error);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
-      <main className="flex-1 max-w-xl mx-auto p-6">
-        <input
-          placeholder="Report Type"
-          className="w-full border p-3 mb-4"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-        />
-
-        <textarea
-          placeholder="Summary"
-          className="w-full border p-3 mb-4"
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-        />
-
-        <button
-          onClick={handleSubmit}
-          disabled={isLoading}
-          className="w-full bg-primary text-white p-3 rounded"
-        >
-          {isLoading ? "Saving..." : "Save Report"}
-        </button>
-      </main>
-
-      <Footer />
+    <div>
+      <textarea
+        placeholder="Symptoms"
+        onChange={(e) => setSymptoms(e.target.value)}
+      />
+      <button onClick={handleUpload}>
+        {loading ? "Saving..." : "Save Report"}
+      </button>
     </div>
   );
 };
