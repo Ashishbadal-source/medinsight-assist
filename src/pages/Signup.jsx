@@ -150,9 +150,11 @@
 
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
   const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: "",
@@ -172,20 +174,65 @@ const Signup = () => {
     }
 
     const res = await signup(form);
+
     if (!res.success) {
       alert(res.error.message);
+      return;
     }
+
+    alert("Signup successful");
+    navigate("/login");
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Name"/>
-      <input value={form.email} onChange={e=>setForm({...form,email:e.target.value})} placeholder="Email"/>
-      <input type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} placeholder="Password"/>
-      <input type="password" value={form.confirmPassword} onChange={e=>setForm({...form,confirmPassword:e.target.value})} placeholder="Confirm Password"/>
-      <input value={form.age} onChange={e=>setForm({...form,age:e.target.value})} placeholder="Age"/>
-      <input value={form.gender} onChange={e=>setForm({...form,gender:e.target.value})} placeholder="Gender"/>
-      <button>Create Account</button>
+      <input
+        placeholder="Full Name"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+        required
+      />
+
+      <input
+        placeholder="Email"
+        type="email"
+        value={form.email}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
+        required
+      />
+
+      <input
+        placeholder="Password"
+        type="password"
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
+        required
+      />
+
+      <input
+        placeholder="Confirm Password"
+        type="password"
+        value={form.confirmPassword}
+        onChange={(e) =>
+          setForm({ ...form, confirmPassword: e.target.value })
+        }
+        required
+      />
+
+      <input
+        placeholder="Age"
+        type="number"
+        value={form.age}
+        onChange={(e) => setForm({ ...form, age: e.target.value })}
+      />
+
+      <input
+        placeholder="Gender"
+        value={form.gender}
+        onChange={(e) => setForm({ ...form, gender: e.target.value })}
+      />
+
+      <button type="submit">Create Account</button>
     </form>
   );
 };

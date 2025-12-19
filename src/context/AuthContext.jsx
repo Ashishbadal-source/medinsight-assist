@@ -206,29 +206,32 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [reports, setReports] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data?.session?.user ?? null);
-      setIsLoading(false);
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data?.user ?? null);
+      setLoading(false);
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
-    return () => subscription.unsubscribe();
+    return () => listener.subscription.unsubscribe();
   }, []);
 
-  const signup = async ({ email, password, name, age, gender }) => {
+  // 🔥 SIGNUP FUNCTION
+  const signup = async (form) => {
+    const { email, password, name, age, gender } = form;
+
+    // 1️⃣ Create auth user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -236,59 +239,28 @@ export const AuthProvider = ({ children }) => {
 
     if (error) return { success: false, error };
 
+    const user = data.user;
+
+    // 2️⃣ Insert profile data
     const { error: profileError } = await supabase
       .from("profiles")
       .insert({
-        id: data.user.id,
+        id: user.id,
         name,
-        age,
+        age: age ? Number(age) : null,
         gender,
       });
 
-    if (profileError) return { success: false, error: profileError };
+    if (profileError) {
+      return { success: false, error: profileError };
+    }
 
     return { success: true };
-  };
-
-  const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) return { success: false, error };
-    setUser(data.user);
-    return { success: true };
-  };
-
-  const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-  };
-
-  const fetchReports = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("reports")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setReports(data || []);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        reports,
-        isLoading,
-        signup,
-        login,
-        logout,
-        fetchReports,
-        isAuthenticated: !!user,
-      }}
-    >
-      {children}
+    <AuthContext.Provider value={{ user, signup }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
