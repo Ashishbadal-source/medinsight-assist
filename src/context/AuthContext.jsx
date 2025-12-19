@@ -199,9 +199,8 @@ export const AuthProvider = ({ children }) => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🔹 Session + profile
   useEffect(() => {
-    const loadUser = async () => {
+    const initSession = async () => {
       const { data } = await supabase.auth.getSession();
       const authUser = data?.session?.user || null;
       setUser(authUser);
@@ -213,21 +212,14 @@ export const AuthProvider = ({ children }) => {
           .eq("id", authUser.id)
           .single();
 
-        setProfile(profileData);
+        setProfile(profileData || null);
       }
 
       setIsLoading(false);
     };
 
-    loadUser();
+    initSession();
   }, []);
-
-  const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { success: false, error };
-    setUser(data.user);
-    return { success: true };
-  };
 
   const signup = async ({ email, password, name, age, gender }) => {
     const { data, error } = await supabase.auth.signUp({ email, password });
@@ -241,6 +233,27 @@ export const AuthProvider = ({ children }) => {
     });
 
     setUser(data.user);
+    setProfile({ name, age, gender });
+    return { success: true };
+  };
+
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) return { success: false, error };
+
+    setUser(data.user);
+
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    setProfile(profileData || null);
     return { success: true };
   };
 
@@ -252,6 +265,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchReports = async () => {
     if (!user) return;
+
     const { data } = await supabase
       .from("reports")
       .select("*")
@@ -268,11 +282,11 @@ export const AuthProvider = ({ children }) => {
         profile,
         reports,
         isLoading,
-        login,
+        isAuthenticated: !!user,
         signup,
+        login,
         logout,
         fetchReports,
-        isAuthenticated: !!user,
       }}
     >
       {children}
