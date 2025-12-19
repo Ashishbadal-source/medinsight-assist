@@ -269,8 +269,9 @@ import { useAuth } from "../context/AuthContext";
 const Upload = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
   const [symptoms, setSymptoms] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState("");
 
   if (!isAuthenticated) {
     navigate("/login");
@@ -278,28 +279,22 @@ const Upload = () => {
   }
 
   const handleUpload = async () => {
-    setLoading(true);
-
     const { error } = await supabase.from("reports").insert({
       user_id: user.id,
-      category: "blood-test",
+      category,
       symptoms,
     });
 
-    setLoading(false);
     if (!error) navigate("/profile");
+    else alert(error.message);
   };
 
   return (
-    <div>
-      <textarea
-        placeholder="Symptoms"
-        onChange={(e) => setSymptoms(e.target.value)}
-      />
-      <button onClick={handleUpload}>
-        {loading ? "Saving..." : "Save Report"}
-      </button>
-    </div>
+    <>
+      <input placeholder="Category" onChange={e=>setCategory(e.target.value)} />
+      <textarea placeholder="Symptoms" onChange={e=>setSymptoms(e.target.value)} />
+      <button onClick={handleUpload}>Upload</button>
+    </>
   );
 };
 

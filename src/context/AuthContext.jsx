@@ -218,20 +218,35 @@ export const AuthProvider = ({ children }) => {
       setUser(data?.session?.user ?? null);
       setIsLoading(false);
     });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signup = async ({ email, password, name, age, gender }) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return { success: false, error };
-
-    await supabase.from("profiles").insert({
-      id: data.user.id,
-      name,
-      age,
-      gender,
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
     });
 
-    setUser(data.user);
+    if (error) return { success: false, error };
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .insert({
+        id: data.user.id,
+        name,
+        age,
+        gender,
+      });
+
+    if (profileError) return { success: false, error: profileError };
+
     return { success: true };
   };
 
@@ -240,6 +255,7 @@ export const AuthProvider = ({ children }) => {
       email,
       password,
     });
+
     if (error) return { success: false, error };
     setUser(data.user);
     return { success: true };
@@ -251,11 +267,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const fetchReports = async () => {
+    if (!user) return;
     const { data } = await supabase
       .from("reports")
       .select("*")
       .order("created_at", { ascending: false });
-
     setReports(data || []);
   };
 
