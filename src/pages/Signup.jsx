@@ -148,7 +148,188 @@
 
 
 
-import { useState } from "react";
+// import { useState } from "react";
+// import { useAuth } from "../context/AuthContext";
+// import { useNavigate } from "react-router-dom";
+
+// const Signup = () => {
+//   const { signup } = useAuth();
+//   const navigate = useNavigate();
+
+//   const [form, setForm] = useState({
+//     name: "",
+//     email: "",
+//     password: "",
+//     confirmPassword: "",
+//     age: "",
+//     gender: "",
+//   });
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (form.password !== form.confirmPassword) {
+//       alert("Passwords do not match");
+//       return;
+//     }
+
+//     const res = await signup(form);
+
+//     if (!res.success) {
+//       alert(res.error.message);
+//       return;
+//     }
+
+//     alert("Signup successful");
+//     navigate("/login");
+//   };
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       <input
+//         placeholder="Full Name"
+//         value={form.name}
+//         onChange={(e) => setForm({ ...form, name: e.target.value })}
+//         required
+//       />
+
+//       <input
+//         placeholder="Email"
+//         type="email"
+//         value={form.email}
+//         onChange={(e) => setForm({ ...form, email: e.target.value })}
+//         required
+//       />
+
+//       <input
+//         placeholder="Password"
+//         type="password"
+//         value={form.password}
+//         onChange={(e) => setForm({ ...form, password: e.target.value })}
+//         required
+//       />
+
+//       <input
+//         placeholder="Confirm Password"
+//         type="password"
+//         value={form.confirmPassword}
+//         onChange={(e) =>
+//           setForm({ ...form, confirmPassword: e.target.value })
+//         }
+//         required
+//       />
+
+//       <input
+//         placeholder="Age"
+//         type="number"
+//         value={form.age}
+//         onChange={(e) => setForm({ ...form, age: e.target.value })}
+//       />
+
+//       <input
+//         placeholder="Gender"
+//         value={form.gender}
+//         onChange={(e) => setForm({ ...form, gender: e.target.value })}
+//       />
+
+//       <button type="submit">Create Account</button>
+//     </form>
+//   );
+// };
+
+// export default Signup;
+
+
+
+
+
+// import AuthForm from "../components/AuthForm";
+// import { useAuth } from "../context/AuthContext";
+// import { useNavigate } from "react-router-dom";
+
+// const Signup = () => {
+//   const { signup } = useAuth();
+//   const navigate = useNavigate();
+
+//   const handleSignup = async ({ email, password }) => {
+//     const res = await signup({ email, password });
+
+//     if (!res.success) {
+//       alert(res.error.message);
+//       return;
+//     }
+
+//     alert("Signup successful");
+//     navigate("/login");
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-background">
+//       <div className="w-full max-w-md p-6">
+//         <AuthForm type="signup" onSubmit={handleSignup} />
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Signup;
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import AuthForm from "../components/AuthForm";
+// import { useAuth } from "../context/AuthContext";
+// import { useNavigate } from "react-router-dom";
+
+// const Signup = () => {
+//   const { signup } = useAuth();
+//   const navigate = useNavigate();
+
+//   const handleSignup = async ({ email, password }) => {
+//     const res = await signup({ email, password });
+
+//     if (!res.success) {
+//       alert(res.error.message);
+//       return;
+//     }
+
+//     alert("Signup successful");
+//     navigate("/login");
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-background">
+//       <div className="w-full max-w-md p-6">
+//         <AuthForm type="signup" onSubmit={handleSignup} />
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Signup;
+
+
+
+
+
+
+
+
+
+
+
+
+
+import AuthForm from "../components/AuthForm";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -156,84 +337,30 @@ const Signup = () => {
   const { signup } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    age: "",
-    gender: "",
+  const handleSignup = async (formData) => {
+    console.log("SIGNUP FORM DATA 👉", formData);
+  const res = await signup({
+    email: formData.email,
+    password: formData.password,
+    name: formData.name,
+    age: formData.age,
+    gender: formData.gender,
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  if (!res.success) {
+    alert(res.error.message);
+    return;
+  }
 
-    if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    const res = await signup(form);
-
-    if (!res.success) {
-      alert(res.error.message);
-      return;
-    }
-
-    alert("Signup successful");
-    navigate("/login");
-  };
+  navigate("/profile");
+};
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        placeholder="Full Name"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        required
-      />
-
-      <input
-        placeholder="Email"
-        type="email"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-        required
-      />
-
-      <input
-        placeholder="Password"
-        type="password"
-        value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-        required
-      />
-
-      <input
-        placeholder="Confirm Password"
-        type="password"
-        value={form.confirmPassword}
-        onChange={(e) =>
-          setForm({ ...form, confirmPassword: e.target.value })
-        }
-        required
-      />
-
-      <input
-        placeholder="Age"
-        type="number"
-        value={form.age}
-        onChange={(e) => setForm({ ...form, age: e.target.value })}
-      />
-
-      <input
-        placeholder="Gender"
-        value={form.gender}
-        onChange={(e) => setForm({ ...form, gender: e.target.value })}
-      />
-
-      <button type="submit">Create Account</button>
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="w-full max-w-md p-6">
+        <AuthForm type="signup" onSubmit={handleSignup} />
+      </div>
+    </div>
   );
 };
 

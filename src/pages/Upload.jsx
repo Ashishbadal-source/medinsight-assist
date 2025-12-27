@@ -261,40 +261,217 @@
 
 
 
+// import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// // import { supabase } from "../lib/supabase";
+// import { useAuth } from "../context/AuthContext";
+
+// const Upload = () => {
+//   const { user, isAuthenticated } = useAuth();
+//   const navigate = useNavigate();
+
+//   const [symptoms, setSymptoms] = useState("");
+//   const [category, setCategory] = useState("");
+
+//   if (!isAuthenticated) {
+//     navigate("/login");
+//     return null;
+//   }
+
+//   // const handleUpload = async () => {
+//   //   const { error } = await supabase.from("reports").insert({
+//   //     user_id: user.id,
+//   //     category,
+//   //     symptoms,
+//   //   });
+
+//   //   if (!error) navigate("/profile");
+//   //   else alert(error.message);
+//   // };
+
+
+
+//   const handleUpload = async () => {
+//   alert("Upload will be connected to backend next step");
+// };
+
+
+
+
+
+//   return (
+//     <>
+//       <input placeholder="Category" onChange={e=>setCategory(e.target.value)} />
+//       <textarea placeholder="Symptoms" onChange={e=>setSymptoms(e.target.value)} />
+//       <button onClick={handleUpload}>Upload</button>
+//     </>
+//   );
+// };
+
+// export default Upload;
+
+
+
+
+
+
+
+
+
+
+
+
+// import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import Navbar from "../components/Navbar.jsx";
+// import Footer from "../components/Footer.jsx";
+// import { useAuth } from "../context/AuthContext.jsx";
+
+// const Upload = () => {
+//   const { user, isAuthenticated } = useAuth();
+//   const navigate = useNavigate();
+
+//   const [category, setCategory] = useState("");
+//   const [symptoms, setSymptoms] = useState("");
+
+//   if (!isAuthenticated) {
+//     navigate("/login");
+//     return null;
+//   }
+
+//   const handleUpload = () => {
+//     alert("Next step: Upload will be connected to backend AI pipeline");
+//     navigate("/profile");
+//   };
+
+//   return (
+//     <div className="min-h-screen flex flex-col bg-background">
+//       <Navbar />
+
+//       <main className="flex-1 py-12 px-4">
+//         <div className="max-w-xl mx-auto bg-card border border-border rounded-xl p-6 space-y-4">
+//           <h1 className="text-xl font-semibold text-foreground">
+//             Upload Medical Report
+//           </h1>
+
+//           <input
+//             className="w-full border p-3 rounded"
+//             placeholder="Report Category (Blood Test, X-ray, ECG...)"
+//             value={category}
+//             onChange={(e) => setCategory(e.target.value)}
+//           />
+
+//           <textarea
+//             className="w-full border p-3 rounded"
+//             placeholder="Describe symptoms (optional)"
+//             rows={4}
+//             value={symptoms}
+//             onChange={(e) => setSymptoms(e.target.value)}
+//           />
+
+//           <button
+//             onClick={handleUpload}
+//             className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium"
+//           >
+//             Upload Report
+//           </button>
+//         </div>
+//       </main>
+
+//       <Footer />
+//     </div>
+//   );
+// };
+
+// export default Upload;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 
 const Upload = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [symptoms, setSymptoms] = useState("");
   const [category, setCategory] = useState("");
-
-  if (!isAuthenticated) {
-    navigate("/login");
-    return null;
-  }
+  const [symptoms, setSymptoms] = useState("");
 
   const handleUpload = async () => {
+    if (!category) {
+      alert("Please select category");
+      return;
+    }
+
     const { error } = await supabase.from("reports").insert({
       user_id: user.id,
       category,
       symptoms,
     });
 
-    if (!error) navigate("/profile");
-    else alert(error.message);
+    if (error) {
+      alert(error.message);
+    } else {
+      navigate("/profile");
+    }
   };
 
   return (
-    <>
-      <input placeholder="Category" onChange={e=>setCategory(e.target.value)} />
-      <textarea placeholder="Symptoms" onChange={e=>setSymptoms(e.target.value)} />
-      <button onClick={handleUpload}>Upload</button>
-    </>
+    <div className="max-w-xl mx-auto p-6 space-y-4">
+      <input
+        className="w-full border p-3"
+        placeholder="Report Category"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+
+      <textarea
+        className="w-full border p-3"
+        placeholder="Symptoms"
+        value={symptoms}
+        onChange={(e) => setSymptoms(e.target.value)}
+      />
+
+      <button
+        onClick={handleUpload}
+        className="w-full bg-primary text-white py-3 rounded"
+      >
+        Upload Report
+      </button>
+    </div>
   );
 };
 

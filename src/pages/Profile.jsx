@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useEffect } from "react";
 
 const Profile = () => {
-  const { user, reports, isAuthenticated, fetchReports } = useAuth();
+  const { user, profile, reports, isAuthenticated, fetchReports } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if not logged in
@@ -33,6 +33,9 @@ useEffect(() => {
   }
 }, [isAuthenticated]);
 
+if (!user) {
+  return null;
+}
 
 
 
@@ -56,7 +59,10 @@ useEffect(() => {
             {/* Left Column */}
             <div className="lg:col-span-1 space-y-6">
               {/* Patient Info */}
-              <ProfileCard user={user} />
+              {/* <ProfileCard user={user} /> */}
+            <ProfileCard user={user} profile={profile} />
+
+
 
               {/* Upload Button */}
               <Link
