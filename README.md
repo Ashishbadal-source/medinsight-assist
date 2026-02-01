@@ -9,10 +9,10 @@
 There are several ways of editing your application.
 
 ## Step 1: Clone the repository using the project's Git URL.
-git clone [https://github.com/Ashishbadal-source/medinsight-assist.git]
+git clone: [https://github.com/Ashishbadal-source/medinsight-assist.git]
 
 ## Step 2: Navigate to the project directory.
-cd <medinsight-assist>
+cd medinsight-assist
 
 ## Step 3: Install the necessary dependencies.
 npm i
