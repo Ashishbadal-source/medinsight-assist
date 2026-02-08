@@ -4,8 +4,7 @@ import numpy as np
 from ecg_pipeline.quality_check.check_quality import check_quality
 from ecg_pipeline.segmentation.edge_waveform import extract_waveform_edges
 from ecg_pipeline.lead_extraction.crop_leads import crop_leads
-from ecg_pipeline.lead_extraction.order_and_polarity import order_and_fix_ecg
-
+from ecg_pipeline.lead_extraction.order_and_polarity import order_and_fix_ecg    
 from ecg_pipeline.signal_extraction.pixel_to_voltage import pixel_to_signal
 from ecg_pipeline.signal_extraction.baseline_correction import remove_baseline
 from ecg_pipeline.signal_extraction.bandpass_filter import bandpass_filter
@@ -13,7 +12,7 @@ from ecg_pipeline.signal_extraction.median_denoise import denoise_signal
 from ecg_pipeline.signal_extraction.length_normalize import normalize_length
 from ecg_pipeline.signal_extraction.amplitude_normalize import normalize_amplitude
 
-from ecg_pipeline.assemble.build_ecg_tensor import build_ecg_tensor
+from ecg_pipeline.assemble.build_ecg_tensor import build_ecg_tensor 
 
 
 def process_ecg_image(image_path: str):
@@ -27,10 +26,10 @@ def process_ecg_image(image_path: str):
         return {"status": "retry", "reason": "bad_image"}
 
     img = cv2.imread(image_path)
-    if img is None:
+    if img is None: 
         return {"status": "retry", "reason": "image_not_readable"}
 
-    # -------- extraction --------
+    # -------- extraction -------- 
     mask = extract_waveform_edges(img)
     if cv2.countNonZero(mask) == 0:
         return {"status": "retry", "reason": "no_waveform"}
@@ -52,7 +51,44 @@ def process_ecg_image(image_path: str):
     ecg = normalize_length(ecg, 5000)
     ecg = normalize_amplitude(ecg, 1.0)
 
+def ml_predict(ecg):
+    return {
+        "prediction": 1,
+        "confidence": 0.82
+    }
+    
+    
+def save_to_db(image_name, prediction, confidence):
+    print("DB SAVE CALLED")
+    print(image_name, prediction, confidence)
+
+
+def analyze_ecg(image_path):
+
+    # 1. ECG PIPELINE CALL
+    out = process_ecg_image(image_path)
+
+    if out["status"] != "success":
+        return out
+
+    ecg = out["ecg"]
+
+    # 2. ML
+    ml = ml_predict(ecg)
+    save_to_db(
+        image_name=os.path.basename(image_path),
+        prediction=ml["prediction"],
+        confidence=ml["confidence"]
+    )
+
+    # 4. FINAL RESPONSE
     return {
         "status": "success",
-        "ecg": ecg
+        "prediction": ml["prediction"],
+        "confidence": ml["confidence"]
     }
+    
+    # return {
+    #     "status": "success",
+    #     "ecg": ecg
+    # }
