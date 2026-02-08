@@ -1,0 +1,3 @@
+[submodule "ecg_pipeline"]
+	path = ecg_pipeline
+	url = https://github.com/Ashishbadal-source/ECG.git
