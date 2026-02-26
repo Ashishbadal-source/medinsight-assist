@@ -1,0 +1,4 @@
+blur_threshold: 100
+min_brightness: 40
+max_brightness: 220
+max_rotation_deg: 5
