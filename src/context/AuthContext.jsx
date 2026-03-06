@@ -187,10 +187,6 @@
 
 
 
-
-
-
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -210,6 +206,11 @@ export const AuthProvider = ({ children }) => {
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        if (_event === "PASSWORD_RECOVERY") {
+          setUser(null);
+          window.location.href = "/reset-password";
+          return;
+        }
         setUser(session?.user ?? null);
       }
     );
@@ -230,12 +231,10 @@ export const AuthProvider = ({ children }) => {
   const signup = async ({ email, password, name, age, gender }) => {
     const { data: signUpData, error: signUpError } =
       await supabase.auth.signUp({ email, password });
-
     if (signUpError) return { success: false, error: signUpError.message };
 
     const { data: loginData, error: loginError } =
       await supabase.auth.signInWithPassword({ email, password });
-
     if (loginError) return { success: false, error: loginError.message };
 
     setUser(loginData.user);
@@ -247,32 +246,20 @@ export const AuthProvider = ({ children }) => {
       gender,
     });
 
-    if (profileError) {
-      console.error("PROFILE INSERT ERROR:", profileError);
-      return { success: false, error: profileError.message };
-    }
-
+    if (profileError) return { success: false, error: profileError.message };
     return { success: true };
   };
 
   const login = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      // Supabase error messages ko human-friendly banao
       let message = "Invalid email or password. Please try again.";
-      if (error.message?.toLowerCase().includes("invalid login")) {
-        message = "Invalid email or password. Please try again.";
-      } else if (error.message?.toLowerCase().includes("email not confirmed")) {
+      if (error.message?.toLowerCase().includes("email not confirmed"))
         message = "Please verify your email before logging in.";
-      } else if (error.message?.toLowerCase().includes("too many requests")) {
+      else if (error.message?.toLowerCase().includes("too many requests"))
         message = "Too many attempts. Please wait a moment and try again.";
-      } else if (error.message) {
-        message = error.message;
-      }
+      else if (error.message) message = error.message;
       return { success: false, error: message };
     }
 
@@ -287,39 +274,20 @@ export const AuthProvider = ({ children }) => {
 
   const fetchProfile = async (userId) => {
     const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
+      .from("profiles").select("*").eq("id", userId).single();
     if (!error) setProfile(data);
   };
 
   const fetchReports = async () => {
     if (!user) return;
-
     const { data } = await supabase
-      .from("reports")
-      .select("*")
-      .eq("user_id", user.id)
+      .from("reports").select("*").eq("user_id", user.id)
       .order("created_at", { ascending: false });
-
     setReports(data || []);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        reports,
-        signup,
-        login,
-        logout,
-        fetchReports,
-        isAuthenticated: !!user,
-      }}
-    >
+    <AuthContext.Provider value={{ user, profile, reports, signup, login, logout, fetchReports, isAuthenticated: !!user }}>
       {!loading && children}
     </AuthContext.Provider>
   );
