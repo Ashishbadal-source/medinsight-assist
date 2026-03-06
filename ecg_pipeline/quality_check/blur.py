@@ -8,3 +8,6 @@ def check_blur(image, threshold=100.0):
     if laplacian_var < threshold:
         return True   # image is blurry
     return False
+
+# alias for compatibility
+is_blurry = check_blur
