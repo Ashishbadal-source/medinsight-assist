@@ -13,12 +13,16 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Supabase sends session via URL hash — this handles it
-    supabase.auth.onAuthStateChange((event, session) => {
+    // Sign out immediately — don't let user into app until password is reset
+    supabase.auth.signOut();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        // User is now in password recovery mode — good!
+        setSessionReady(true);
       }
     });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSubmit = async (e) => {
