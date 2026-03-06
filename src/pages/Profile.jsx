@@ -211,7 +211,7 @@ const Profile = () => {
 
                   {profile?.gender && (
                     <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                      <Venus className="h-4 w-4 text-primary shrink-0" />
+                      <User className="h-4 w-4 text-primary shrink-0" />
                       <span className="text-sm text-foreground capitalize">{profile.gender}</span>
                     </div>
                   )}
