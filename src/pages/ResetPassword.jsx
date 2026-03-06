@@ -14,22 +14,30 @@ const ResetPassword = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Extract token from URL and set session
+    // Try query params first (token_hash method)
+    const params = new URLSearchParams(window.location.search);
+    const token_hash = params.get("token_hash");
+    const type = params.get("type");
+
+    if (token_hash && type === "recovery") {
+      supabase.auth.verifyOtp({ token_hash, type: "recovery" })
+        .then(({ error }) => {
+          if (error) setError("Invalid or expired reset link. Please request a new one.");
+        });
+      return;
+    }
+
+    // Fallback: Try hash fragment (access_token method)
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const access_token = hashParams.get("access_token");
     const refresh_token = hashParams.get("refresh_token");
 
     if (access_token && refresh_token) {
-      supabase.auth.setSession({ access_token, refresh_token });
+      supabase.auth.setSession({ access_token, refresh_token })
+        .then(({ error }) => {
+          if (error) setError("Invalid or expired reset link. Please request a new one.");
+        });
     }
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setError("");
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   const getPasswordStrength = (pwd) => {
@@ -65,12 +73,9 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50 flex">
-      {/* Left side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/10 to-blue-100 flex-col justify-center items-center p-12 relative overflow-hidden">
-        {/* Background decoration */}
         <div className="absolute top-20 left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-48 h-48 bg-blue-200/40 rounded-full blur-3xl" />
-
         <div className="max-w-md text-center relative z-10">
           <div className="flex items-center justify-center gap-3 mb-10">
             <div className="p-3 bg-primary rounded-2xl shadow-lg">
@@ -78,7 +83,6 @@ const ResetPassword = () => {
             </div>
             <span className="text-3xl font-bold text-foreground">MedInsight AI</span>
           </div>
-
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-sm border border-white/80 mb-8">
             <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
             <h1 className="text-2xl font-semibold text-foreground mb-3">Secure Password Reset</h1>
@@ -86,7 +90,6 @@ const ResetPassword = () => {
               Choose a strong, unique password to keep your medical data safe and secure.
             </p>
           </div>
-
           <div className="space-y-3 text-left">
             {["At least 6 characters long", "Mix of letters and numbers", "Avoid common passwords"].map((tip, i) => (
               <div key={i} className="flex items-center gap-3 bg-white/50 rounded-lg px-4 py-2.5">
@@ -98,11 +101,8 @@ const ResetPassword = () => {
         </div>
       </div>
 
-      {/* Right side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12">
         <div className="w-full max-w-md">
-
-          {/* Mobile logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
             <div className="p-2 bg-primary rounded-xl">
               <Activity className="h-6 w-6 text-white" />
