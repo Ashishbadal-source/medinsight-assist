@@ -11,6 +11,7 @@ import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import ReportDetails from "./pages/ReportDetails.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 const App = () => (
   <BrowserRouter>
@@ -27,6 +28,7 @@ const App = () => (
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
     </AuthProvider>
   </BrowserRouter>
