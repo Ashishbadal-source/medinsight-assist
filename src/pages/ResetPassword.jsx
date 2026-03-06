@@ -10,11 +10,11 @@ const ResetPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [sessionReady, setSessionReady] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Sign out immediately — don't let user into app until password is reset
-    supabase.auth.signOut();
+    // Don't sign out — let Supabase handle the recovery session from URL hash
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
