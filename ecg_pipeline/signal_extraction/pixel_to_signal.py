@@ -12,6 +12,9 @@ def pixel_to_signal(skel):
         else:
             signal.append(float(h - ys.mean()))
 
-    return np.array(signal, dtype=np.float32)
-
-sig = savgol_filter(sig, window_length=21, polyorder=3)
+    sig = np.array(signal, dtype=np.float32)
+    
+    # smooth karo signal ko
+    sig = savgol_filter(sig, window_length=21, polyorder=3)
+    
+    return sig
