@@ -185,46 +185,92 @@
 
 
 
+# import cv2
+# import torch
+# import numpy as np
+# from segmentation.unet import UNet
+
+# # device
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# # load model once (IMPORTANT)
+# model = UNet(in_channels=1, out_channels=1).to(device)
+# model.load_state_dict(
+#     torch.load("segmentation/weights.pth", map_location=device)
+# )
+# model.eval()
+
+
+# def segment_waveform(img):
+#     """
+#     ML-based ECG waveform segmentation.
+#     Returns clean binary mask (waveform only).
+#     """
+
+#     # 1️⃣ grayscale
+#     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+#     # 2️⃣ resize to UNet input (fixed)
+#     resized = cv2.resize(gray, (512, 512))
+#     resized = resized.astype(np.float32) / 255.0
+
+#     # 3️⃣ tensor
+#     x = torch.from_numpy(resized).unsqueeze(0).unsqueeze(0).to(device)
+
+#     # 4️⃣ inference
+#     with torch.no_grad():
+#         y = model(x)
+
+#     # 5️⃣ threshold
+#     mask = (y.squeeze().cpu().numpy() > 0.5).astype(np.uint8) * 255
+
+#     # 6️⃣ resize back to original size
+#     mask = cv2.resize(mask, (gray.shape[1], gray.shape[0]),
+#                       interpolation=cv2.INTER_NEAREST)
+
+#     return mask
+
+
+
+
+
+
 import cv2
 import torch
 import numpy as np
 from segmentation.unet import UNet
 
-# device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# load model once (IMPORTANT)
-model = UNet(in_channels=1, out_channels=1).to(device)
-model.load_state_dict(
-    torch.load("segmentation/weights.pth", map_location=device)
-)
-model.eval()
+# Global model — lazily loaded
+_model = None
+
+def _get_model():
+    global _model
+    if _model is None:
+        _model = UNet(in_channels=1, out_channels=1).to(device)
+        import os
+        weights_path = os.path.join(os.path.dirname(__file__), "weights.pth")
+        if os.path.exists(weights_path):
+            _model.load_state_dict(
+                torch.load(weights_path, map_location=device)
+            )
+        # else: random weights — pipeline will still run
+        _model.eval()
+    return _model
 
 
 def segment_waveform(img):
-    """
-    ML-based ECG waveform segmentation.
-    Returns clean binary mask (waveform only).
-    """
-
-    # 1️⃣ grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    # 2️⃣ resize to UNet input (fixed)
     resized = cv2.resize(gray, (512, 512))
     resized = resized.astype(np.float32) / 255.0
 
-    # 3️⃣ tensor
     x = torch.from_numpy(resized).unsqueeze(0).unsqueeze(0).to(device)
 
-    # 4️⃣ inference
     with torch.no_grad():
-        y = model(x)
+        y = _get_model()(x)
 
-    # 5️⃣ threshold
     mask = (y.squeeze().cpu().numpy() > 0.5).astype(np.uint8) * 255
-
-    # 6️⃣ resize back to original size
     mask = cv2.resize(mask, (gray.shape[1], gray.shape[0]),
                       interpolation=cv2.INTER_NEAREST)
 
