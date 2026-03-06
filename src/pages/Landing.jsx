@@ -435,23 +435,22 @@ const Landing = () => {
       <Navbar />
 
       {/* ── Hero ── */}
-      <section className="relative py-14 md:py-20 px-4 overflow-hidden">
+      <section className="relative px-4 py-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/40 to-white -z-10" />
-        {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-[0.03] -z-10"
           style={{ backgroundImage: "linear-gradient(#1d4ed8 1px, transparent 1px), linear-gradient(90deg, #1d4ed8 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
 
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left */}
             <div>
-              <div className="inline-flex items-center gap-2 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-5 border border-primary/20 shadow-sm">
+              <div className="inline-flex items-center gap-2 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium mb-4 border border-primary/20 shadow-sm">
                 <Zap className="h-3.5 w-3.5 fill-primary" />
                 AI-Powered Medical Report Analysis
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-5">
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
                 Understand Medical Reports with{" "}
-                <span className="text-primary relative">
+                <span className="text-primary relative inline-block">
                   AI-Assisted
                   <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 8" fill="none">
                     <path d="M0 6 Q75 0 150 4 Q225 8 300 2" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.4"/>
@@ -459,10 +458,10 @@ const Landing = () => {
                 </span>{" "}
                 Clinical Insights
               </h1>
-              <p className="text-lg text-slate-500 leading-relaxed mb-8">
+              <p className="text-lg text-slate-500 leading-relaxed mb-6">
                 Upload blood tests, X-rays, and ECGs to receive structured, explainable summaries designed for healthcare professionals.
               </p>
-              <div className="flex flex-wrap gap-3 mb-8">
+              <div className="flex flex-wrap gap-3 mb-6">
                 <Link to="/upload"
                   className="inline-flex items-center gap-2 bg-primary text-white px-7 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-all shadow-md shadow-primary/20 hover:-translate-y-0.5">
                   Upload Medical Report <ArrowRight className="h-4 w-4" />
@@ -472,7 +471,6 @@ const Landing = () => {
                   How It Works
                 </Link>
               </div>
-              {/* Trust row */}
               <div className="flex flex-wrap gap-4">
                 {trustItems.map((t) => (
                   <div key={t.label} className="flex items-center gap-1.5 text-sm text-slate-500">
@@ -483,9 +481,9 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Right — visual panel */}
+            {/* Right — AI preview card */}
             <div className="hidden lg:block relative">
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 space-y-4">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 space-y-3">
                 <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
                   <div className="p-2 bg-primary/10 rounded-lg">
                     <Activity className="h-5 w-5 text-primary" />
@@ -502,7 +500,7 @@ const Landing = () => {
                   { label: "Platelets", value: "1,42,000 /μL", status: "Low", color: "text-amber-600 bg-amber-50 border-amber-100" },
                   { label: "Blood Glucose", value: "98 mg/dL", status: "Normal", color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between py-2 border-b border-slate-50">
+                  <div key={item.label} className="flex items-center justify-between py-1.5 border-b border-slate-50">
                     <span className="text-sm text-slate-600">{item.label}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-slate-800">{item.value}</span>
@@ -515,7 +513,6 @@ const Landing = () => {
                   <p className="text-xs text-blue-600">Low hemoglobin detected. Consider iron deficiency anemia workup and dietary assessment.</p>
                 </div>
               </div>
-              {/* Floating badge */}
               <div className="absolute -bottom-4 -left-4 bg-white rounded-xl border border-slate-200 shadow-lg px-4 py-2.5 flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                 <span className="text-xs font-medium text-slate-600">Analysis ready in seconds</span>
@@ -526,8 +523,8 @@ const Landing = () => {
       </section>
 
       {/* ── Stats Bar ── */}
-      <section className="py-6 px-4 bg-slate-900">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <section className="py-5 px-4 bg-slate-800">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
             { value: "4+", label: "Report Types" },
             { value: "< 30s", label: "Analysis Time" },
@@ -535,29 +532,29 @@ const Landing = () => {
             { value: "Secure", label: "End-to-End" },
           ].map((s) => (
             <div key={s.label}>
-              <p className="text-2xl font-bold text-white">{s.value}</p>
-              <p className="text-sm text-slate-400 mt-0.5">{s.label}</p>
+              <p className="text-xl font-bold text-white">{s.value}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section className="py-14 px-4 bg-slate-50">
+      <section className="py-12 px-4 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">Features</p>
-            <h2 className="text-3xl font-bold text-slate-900">Comprehensive Report Analysis</h2>
-            <p className="text-slate-500 mt-2 max-w-lg mx-auto">Get detailed clinical insights from every type of medical report.</p>
+          <div className="text-center mb-8">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Features</p>
+            <h2 className="text-2xl font-bold text-slate-900">Comprehensive Report Analysis</h2>
+            <p className="text-slate-500 mt-2 text-sm max-w-lg mx-auto">Get detailed clinical insights from every type of medical report.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((f, i) => (
-              <div key={i} className={`bg-white rounded-2xl border border-slate-100 border-l-4 ${f.accent} p-5 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group`}>
-                <div className={`w-10 h-10 ${f.bg} rounded-xl flex items-center justify-center mb-4`}>
+              <div key={i} className={`bg-white rounded-2xl border border-slate-100 border-l-4 ${f.accent} p-5 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5`}>
+                <div className={`w-10 h-10 ${f.bg} rounded-xl flex items-center justify-center mb-3`}>
                   <f.icon className={`h-5 w-5 ${f.color}`} />
                 </div>
                 <h3 className="font-semibold text-slate-800 mb-1.5 text-sm">{f.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{f.description}</p>
+                <p className="text-xs text-slate-500 leading-relaxed">{f.description}</p>
               </div>
             ))}
           </div>
@@ -565,26 +562,26 @@ const Landing = () => {
       </section>
 
       {/* ── How It Works ── */}
-      <section className="py-14 px-4 bg-white">
+      <section className="py-12 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <p className="text-sm font-semibold text-primary uppercase tracking-widest mb-2">Process</p>
-            <h2 className="text-3xl font-bold text-slate-900">How It Works</h2>
-            <p className="text-slate-500 mt-2">Get your report analyzed in 4 simple steps.</p>
+          <div className="text-center mb-8">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-2">Process</p>
+            <h2 className="text-2xl font-bold text-slate-900">How It Works</h2>
+            <p className="text-slate-500 mt-2 text-sm">Get your report analyzed in 4 simple steps.</p>
           </div>
-          <div className="grid md:grid-cols-4 gap-5">
+          <div className="grid md:grid-cols-4 gap-4">
             {steps.map((step, i) => (
               <div key={i} className="relative">
                 {i < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-[60%] w-full h-0.5 bg-gradient-to-r from-slate-200 to-transparent z-0" />
+                  <div className="hidden md:block absolute top-7 left-[60%] w-full h-0.5 bg-gradient-to-r from-slate-200 to-transparent z-0" />
                 )}
                 <div className="relative z-10 bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all text-center">
-                  <div className={`w-14 h-14 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm`}>
-                    <step.icon className="h-6 w-6 text-white" />
+                  <div className={`w-12 h-12 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm`}>
+                    <step.icon className="h-5 w-5 text-white" />
                   </div>
                   <span className="text-xs font-bold text-slate-300 tracking-widest">{step.step}</span>
-                  <h3 className="font-semibold text-slate-800 mt-1 mb-1.5">{step.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{step.description}</p>
+                  <h3 className="font-semibold text-slate-800 mt-1 mb-1 text-sm">{step.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">{step.description}</p>
                 </div>
               </div>
             ))}
@@ -599,7 +596,7 @@ const Landing = () => {
       </section>
 
       {/* ── Disclaimer ── */}
-      <section className="py-8 px-4 bg-slate-50">
+      <section className="py-6 px-4 bg-slate-50">
         <div className="max-w-3xl mx-auto">
           <DisclaimerBox variant="warning" />
         </div>
