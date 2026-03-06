@@ -39,7 +39,7 @@ const ProfileCard = ({ user, profile }) => {
 
         {profile.gender && (
           <div className="flex items-center gap-3">
-            <User className="w-4 h-4 text-primary shrink-0" />
+            <User className="w-4 h-4 text-muted-foreground" />
             <span>Gender: {profile.gender}</span>
           </div>
         )}
