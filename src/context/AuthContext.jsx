@@ -186,11 +186,6 @@
 
 
 
-
-
-
-
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -210,6 +205,9 @@ export const AuthProvider = ({ children }) => {
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        if (_event === "PASSWORD_RECOVERY") {
+          return;
+        }
         setUser(session?.user ?? null);
       }
     );
@@ -262,7 +260,6 @@ export const AuthProvider = ({ children }) => {
     });
 
     if (error) {
-      // Supabase error messages ko human-friendly banao
       let message = "Invalid email or password. Please try again.";
       if (error.message?.toLowerCase().includes("invalid login")) {
         message = "Invalid email or password. Please try again.";
