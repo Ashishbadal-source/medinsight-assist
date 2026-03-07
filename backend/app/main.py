@@ -101,7 +101,10 @@
 
 
 
-
+import os
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
+print("JWT SECRET LOADED:", os.getenv('SUPABASE_JWT_SECRET', 'NOT FOUND')[:10])
 
 
 import sys
