@@ -42,3 +42,4 @@ torchvision==0.16.2
 # ===============================
 tqdm==4.66.1
 scikit-image==0.22.0
+tensorflow-cpu==2.16.1
