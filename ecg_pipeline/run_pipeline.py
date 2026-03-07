@@ -448,7 +448,7 @@ def run_ecg_pipeline(image_path: str) -> dict:
         sig = normalize_signal(sig)
 
         # resample to 5000
-        sig = resample_signal(sig, target_length=5000)
+        sig = resample_signal(sig, target_len=5000)
 
         signals.append(sig)
 

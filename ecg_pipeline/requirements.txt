@@ -6,3 +6,4 @@ torchvision
 matplotlib
 numpy 
 pandas
+scikit-image==0.22.0
