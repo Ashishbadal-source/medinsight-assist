@@ -120,7 +120,7 @@ def get_current_user(token=Depends(security)):
             secret = secret.decode("utf-8")
         # Token header se kid nikalo aur ignore karo
         header = jwt.get_unverified_header(token.credentials)
-        print("Token kid:", header.get('kid'))  # debug
+        # print("Token kid:", header.get('kid'))  # debug
         
         payload = jwt.decode(
             token.credentials,
