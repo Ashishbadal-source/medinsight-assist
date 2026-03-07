@@ -157,24 +157,16 @@
 #     return result
 
 
-
-
 import os
 import sys
 import tempfile
-import shutil
-from dotenv import load_dotenv
-
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, BASE_DIR)
 
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.auth import get_current_user
-from ecg_pipeline.run_pipeline import run_ecg_pipeline
 
 app = FastAPI(title="MedInsight AI Backend")
 
@@ -199,6 +191,8 @@ async def analyze_ecg(
     file: UploadFile = File(...),
     user_id: str = Depends(get_current_user),
 ):
+    from ecg_pipeline.run_pipeline import run_ecg_pipeline
+
     filename = file.filename or ""
     ext = filename.rsplit(".", 1)[-1].lower()
     if ext not in ("jpg", "jpeg", "png", "bmp", "tiff", "tif"):
