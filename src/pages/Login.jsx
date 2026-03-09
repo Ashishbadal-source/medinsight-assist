@@ -568,7 +568,7 @@ const Login = () => {
               <Lock className="h-3 w-3" />
               Secure Login
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-1.5">Sign in to your account</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-1.5">Login to your account</h2>
             <p className="text-slate-500 text-sm">Enter your credentials to access your dashboard</p>
           </div>
 
