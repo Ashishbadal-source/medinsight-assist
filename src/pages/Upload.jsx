@@ -1013,7 +1013,7 @@ const Upload = () => {
                   onChange={(e) => setGender(e.target.value)}
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 >
-                  {/* <option value="">Select gender</option> */}
+                  <option value=""disabled>Select gender</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
