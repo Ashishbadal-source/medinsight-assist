@@ -104,10 +104,113 @@
 
 
 
+# import sys
+# import os
+
+# # ecg_pipeline root se accessible ho
+# ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+# sys.path.insert(0, ROOT_DIR)
+
+# from fastapi import FastAPI, UploadFile, File, Depends
+# from fastapi.middleware.cors import CORSMiddleware
+# import shutil
+# import tempfile
+
+# from app.auth import get_current_user
+# from ecg_pipeline.run_pipeline import run_ecg_pipeline
+
+# app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# @app.get("/")
+# def home():
+#     return {"message": "MedInsight Backend Running"}
+
+# @app.post("/analyze/ecg")
+# async def analyze_ecg(
+#     file: UploadFile = File(...),
+#     user_id: str = Depends(get_current_user)
+# ):
+#     suffix = os.path.splitext(file.filename)[-1]
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+#         shutil.copyfileobj(file.file, tmp)
+#         tmp_path = tmp.name
+
+#     try:
+#         result = run_ecg_pipeline(tmp_path)
+#     finally:
+#         os.remove(tmp_path)
+
+#     if not result["success"]:
+#         return {"success": False, "error": result["error"]}
+
+#     return result
+
+
+
+
+
+
+
+# import sys
+# import os
+
+# ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+# sys.path.insert(0, ROOT_DIR)
+
+# from fastapi import FastAPI, UploadFile, File, Depends
+# from fastapi.middleware.cors import CORSMiddleware
+# import shutil
+# import tempfile
+
+# from app.auth import get_current_user
+# # from services.ecg_service import analyze_ecg   # UPDATED IMPORT
+# from routes.ecg_routes import router as ecg_router  # ADD THIS
+
+# app.include_router(ecg_router)  # ADD THIS
+# app = FastAPI()
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# @app.get("/")
+# def home():
+#     return {"message": "MedInsight Backend Running"}
+
+# @app.post("/analyze/ecg")
+# async def analyze_ecg_api(
+#     file: UploadFile = File(...),
+#     user_id: str = Depends(get_current_user)
+# ):
+#     suffix = os.path.splitext(file.filename)[-1]
+
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+#         shutil.copyfileobj(file.file, tmp)
+#         tmp_path = tmp.name
+
+#     try:
+#         result = analyze_ecg(tmp_path)   # UPDATED CALL
+#     finally:
+#         os.remove(tmp_path)
+
+#     return result
+
+
 import sys
 import os
 
-# ecg_pipeline root se accessible ho
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT_DIR)
 
@@ -117,10 +220,12 @@ import shutil
 import tempfile
 
 from app.auth import get_current_user
-from ecg_pipeline.run_pipeline import run_ecg_pipeline
+from routes.ecg_routes import router as ecg_router
 
+# ✅ Pehle app banao
 app = FastAPI()
 
+# ✅ Phir middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -129,26 +234,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ Phir router include karo
+app.include_router(ecg_router)
+
 @app.get("/")
 def home():
     return {"message": "MedInsight Backend Running"}
-
-@app.post("/analyze/ecg")
-async def analyze_ecg(
-    file: UploadFile = File(...),
-    user_id: str = Depends(get_current_user)
-):
-    suffix = os.path.splitext(file.filename)[-1]
-    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-        shutil.copyfileobj(file.file, tmp)
-        tmp_path = tmp.name
-
-    try:
-        result = run_ecg_pipeline(tmp_path)
-    finally:
-        os.remove(tmp_path)
-
-    if not result["success"]:
-        return {"success": False, "error": result["error"]}
-
-    return result
