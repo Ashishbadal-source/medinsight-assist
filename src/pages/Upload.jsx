@@ -877,6 +877,21 @@ const Upload = () => {
         if (!data.success) throw new Error(data.error || "Analysis failed");
         analysisResult = data;
       }
+      if (reportType === "Blood Test") {
+        setStatusMsg("Analyzing Blood Report...");
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch(`${BACKEND_URL}/analyze/blood`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+        const data = await response.json();
+        if (!data.success) throw new Error(data.error || "Analysis failed");
+        analysisResult = data;
+      }
 
       setStatusMsg("Saving report...");
       const { data: insertedReport, error: dbError } = await supabase.from("reports").insert({
@@ -886,8 +901,18 @@ const Upload = () => {
         age: age ? Number(age) : null,
         gender: gender || null,
         symptoms: symptoms || null,
-        summary: analysisResult ? analysisResult.subclass_prediction?.label : null,
-        confidence_score: analysisResult ? Math.round(analysisResult.subclass_prediction?.confidence * 100) : null,
+        // summary: analysisResult ? analysisResult.subclass_prediction?.label : null,
+        summary: analysisResult
+          ? (reportType === "ECG"
+              ? analysisResult.subclass_prediction?.label
+              : analysisResult.summary)
+          : null,
+        // confidence_score: analysisResult ? Math.round(analysisResult.subclass_prediction?.confidence * 100) : null,
+        confidence_score: analysisResult
+          ? (reportType === "ECG"
+              ? Math.round(analysisResult.subclass_prediction?.confidence * 100)
+              : null)
+          : null,
         analysis_json: analysisResult || null,
       }).select().single();
 
