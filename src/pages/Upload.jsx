@@ -270,6 +270,16 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload as UploadIcon } from "lucide-react";
@@ -324,7 +334,8 @@ const Upload = () => {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch(`${BACKEND_URL}/analyze/ecg`, {
+        // const response = await fetch(`${BACKEND_URL}/analyze/ecg`, {
+        const response = await fetch(`${BACKEND_URL}/ecg/analyze`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
@@ -332,8 +343,8 @@ const Upload = () => {
 
         const data = await response.json();
 
-        if (!data.success) throw new Error(data.error || "Analysis failed");
-
+        // if (!data.success) throw new Error(data.error || "Analysis failed");
+        if (data.status !== "success") throw new Error(data.reason || "Analysis failed");
         analysisResult = data;
       }
 
@@ -350,13 +361,20 @@ const Upload = () => {
           gender: gender || null,
           symptoms: symptoms || null,
           // ECG analysis result save karo
+          // summary: analysisResult
+          //   ? analysisResult.subclass_prediction?.label
+          //   : null,
+          // confidence_score: analysisResult
+          //   ? Math.round(analysisResult.subclass_prediction?.confidence * 100)
+          //   : null,
+          // analysis_json: analysisResult || null,
           summary: analysisResult
-            ? analysisResult.subclass_prediction?.label
-            : null,
-          confidence_score: analysisResult
-            ? Math.round(analysisResult.subclass_prediction?.confidence * 100)
-            : null,
-          analysis_json: analysisResult || null,
+          ? analysisResult.llm_output?.Diagnosis
+          : null,
+        confidence_score: analysisResult
+          ? Math.round(analysisResult.confidence * 100)
+          : null,
+        analysis_json: analysisResult || null,
         })
         .select()
         .single();
