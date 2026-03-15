@@ -20,7 +20,6 @@ const ResetPassword = () => {
       }
     });
 
-    // Also check if already in recovery via existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });

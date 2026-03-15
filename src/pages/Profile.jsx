@@ -29,7 +29,6 @@ const Profile = () => {
     }
   }, [isAuthenticated, fetchReports]);
 
-  // ⏳ Wait only for USER (profile can be null initially)
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">

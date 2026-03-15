@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { FileText, Activity, Image, Heart, ChevronRight } from "lucide-react";
 
-/* ---------------- SAFE HELPERS ---------------- */
 
 const getReportIcon = (type = "") => {
   switch (type.toLowerCase()) {
@@ -18,7 +17,6 @@ const getReportIcon = (type = "") => {
   }
 };
 
-/* ---------------- COMPONENT ---------------- */
 
 const ReportTimeline = ({ reports = [] }) => {
   const groupedReports = reports.reduce((acc, report) => {

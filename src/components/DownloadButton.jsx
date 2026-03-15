@@ -6,21 +6,14 @@ const DownloadButton = ({ reportId, size = "default" }) => {
 
   const handleDownload = async () => {
     setIsDownloading(true);
-    
-    // Simulate API call to download PDF
-    // In production, this would call: /api/download/:reportId
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
-    // Simulate file download
     const link = document.createElement("a");
     link.href = "#";
     link.download = `MedInsight_Report_${reportId}.pdf`;
     
-    // In production, you would set link.href to the actual PDF URL
-    // For now, just show completion
     setIsDownloading(false);
     
-    // Show success feedback (in real app, trigger actual download)
     alert("Download started. In production, this would download the PDF report.");
   };
 

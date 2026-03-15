@@ -2,8 +2,6 @@ import { Link } from "react-router-dom";
 import { FileText, Activity, Image, Heart, Eye } from "lucide-react";
 import DownloadButton from "./DownloadButton.jsx";
 
-/* ---------------- SAFE HELPERS ---------------- */
-
 const getReportIcon = (type = "") => {
   switch (type.toLowerCase()) {
     case "blood test":
@@ -33,8 +31,6 @@ const getTypeColor = (type = "") => {
       return "bg-gray-100 text-gray-700";
   }
 };
-
-/* ---------------- COMPONENT ---------------- */
 
 const ReportHistoryCard = ({ report }) => {
   const type = report.report_type || "Unknown";

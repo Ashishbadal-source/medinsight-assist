@@ -10,7 +10,6 @@ import RecommendationList from "../components/RecommendationList.jsx";
 import ImagingResultCard from "../components/ImagingResultCard.jsx";
 import DisclaimerBox from "../components/DisclaimerBox.jsx";
 
-// Dummy data for demonstration
 const dummyData = {
   report: {
     type: "Complete Blood Count (CBC)",

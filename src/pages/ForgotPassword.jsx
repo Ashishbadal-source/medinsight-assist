@@ -73,7 +73,6 @@ const ForgotPassword = () => {
           </Link>
 
           {success ? (
-            /* Success state */
             <div className="text-center">
               <div className="flex justify-center mb-4">
                 <CheckCircle className="h-16 w-16 text-green-500" />
@@ -103,7 +102,6 @@ const ForgotPassword = () => {
               </Link>
             </div>
           ) : (
-            /* Form state */
             <>
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-foreground mb-2">Forgot Password?</h2>
