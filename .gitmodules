@@ -3,4 +3,4 @@
 	url = https://github.com/Ashishbadal-source/ECG.git
 [submodule "medinsight-backend"]
     path = medinsight-backend
-    url = https://github.com/Ashishbadal-source/medinsight-backend.git
+    url = https://github.com/Ashishbadal-source/medinsight-assist.git
