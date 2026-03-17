@@ -1,0 +1,34 @@
+name: Deploy to HuggingFace
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'medinsight-backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "ci@medinsight.ai"
+          git config --global user.name "MedInsight CI"
+
+      - name: Push medinsight-backend to HuggingFace
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          cd medinsight-backend
+          git init
+          git remote add hf https://Ashish4816:$HF_TOKEN@huggingface.co/spaces/Ashish4816/medinsight-backend
+          git add .
+          git commit -m "deploy: sync from GitHub main"
+          git push hf HEAD:main --force
