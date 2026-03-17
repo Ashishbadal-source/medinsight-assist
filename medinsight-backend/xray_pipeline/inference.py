@@ -132,4 +132,3 @@ def run_xray(image_path):
         "detected_count": len(detected),
         "total_conditions": len(LABELS)
     }
-    
