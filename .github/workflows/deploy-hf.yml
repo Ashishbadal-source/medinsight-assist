@@ -32,6 +32,7 @@ jobs:
           git lfs install
           git lfs track "xray_pipeline/models/*.onnx"
           git lfs track "ecg_pipeline/segmentation/*.pth"
+          git lfs track "ecg_pipeline/ml/models/*.tflite"
           git add .gitattributes
           git remote add hf https://Ashish4816:$HF_TOKEN@huggingface.co/spaces/Ashish4816/medinsight-backend
           git add .
