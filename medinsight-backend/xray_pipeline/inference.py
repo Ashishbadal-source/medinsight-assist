@@ -107,7 +107,7 @@ def run_xray(image_path):
         results.append({
             "condition": label,
             "probability": round(float(score) * 100, 1),
-            "detected": bool(score > 0.5)
+            "detected": bool(score > 0.6)
         })
 
     results.sort(key=lambda x: x["probability"], reverse=True)
