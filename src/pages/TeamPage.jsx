@@ -41,8 +41,8 @@ const TeamPage = () => {
       description: "Led the signal extraction algorithm development, managed database architecture, and engineered the end-to-end system integration pipelines.",
       skills: ["Signal Processing", "Database Management", "System Architecture", "FastAPI"],
       imagePath: "/team/ashish.jpg", 
-      github: "https://github.com/your-profile",
-      linkedin: "https://linkedin.com/in/your-profile"
+      github: "https://github.com/Ashishbadal-source",
+      linkedin: "https://www.linkedin.com/in/ashish-badal-309746281/"
     },
     {
       name: "Muskan Kagzi",
@@ -50,8 +50,8 @@ const TeamPage = () => {
       description: "Headed the intelligence layer by fine-tuning Large Language Models (LLMs) to provide structured clinical insights and natural language processing.",
       skills: ["LLM", "NLP", "Model Fine-tuning", "Prompt Engineering"],
       imagePath: "/team/muskan.jpg",
-      github: "#",
-      linkedin: "#"
+      github: "https://github.com/Muskan-kagzi",
+      linkedin: "https://www.linkedin.com/in/muskan-goyal-859495331/"
     },
     {
       name: "Devesh",
@@ -59,8 +59,8 @@ const TeamPage = () => {
       description: "Drove the data strategy by curating high-quality medical datasets, implementing cleaning pipelines, and optimizing machine learning model accuracy.",
       skills: ["Model Training", "Data Cleaning", "Dataset Curation", "OpenCV"],
       imagePath: "/team/devesh.jpg",
-      github: "#",
-      linkedin: "#"
+      github: "https://github.com/me-dev52",
+      linkedin: "https://www.linkedin.com/in/devesh-kumar-rai-3270a3288/"
     }
   ];
 
