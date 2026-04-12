@@ -480,6 +480,7 @@ const Navbar = () => {
     { path: "/profile", label: "Profile" },
     { path: "/upload", label: "Upload Report" },
     { path: "/how-it-works", label: "How It Works" },
+    { path: "/about", label: "About Us" },
   ];
 
   const navLinks = isAuthenticated ? authenticatedLinks : publicLinks;

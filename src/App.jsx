@@ -12,6 +12,7 @@ import Profile from "./pages/Profile.jsx";
 import ReportDetails from "./pages/ReportDetails.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import TeamPage from './pages/TeamPage';
 
 const App = () => (
   <BrowserRouter>
@@ -29,6 +30,7 @@ const App = () => (
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/about" element={<TeamPage />} />
       </Routes>
     </AuthProvider>
   </BrowserRouter>
