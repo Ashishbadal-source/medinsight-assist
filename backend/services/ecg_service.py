@@ -51,6 +51,11 @@ def process_ecg_image(image_path: str):
     ecg = normalize_length(ecg, 5000)
     ecg = normalize_amplitude(ecg, 1.0)
 
+    return {
+        "status": "success",
+        "ecg": ecg
+    }
+
 def ml_predict(ecg):
     return {
         "prediction": 1,

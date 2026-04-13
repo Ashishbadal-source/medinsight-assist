@@ -28,9 +28,9 @@ const App = () => (
         <Route path="/report/:id" element={<ReportDetails />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
-        <Route path="*" element={<NotFound />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/about" element={<TeamPage />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   </BrowserRouter>
