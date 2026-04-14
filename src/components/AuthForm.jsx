@@ -257,6 +257,7 @@ const AuthForm = ({ type, onSubmit, isLoading, serverError }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "age" && value !== "" && Number(value) < 0) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -375,6 +376,7 @@ const AuthForm = ({ type, onSubmit, isLoading, serverError }) => {
               <label className="block text-sm font-medium text-foreground mb-1.5">Age (Optional)</label>
               <input
                 type="number"
+                min="0"
                 name="age"
                 value={formData.age}
                 onChange={handleChange}

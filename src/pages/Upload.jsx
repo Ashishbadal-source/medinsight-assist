@@ -258,8 +258,12 @@ const Upload = () => {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Patient Age <span className="text-slate-400 font-normal">(optional)</span></label>
                 <input
                   type="number"
+                  min="0"
                   value={age}
-                  onChange={(e) => setAge(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) >= 0) setAge(val);
+                  }}
                   className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                   placeholder="e.g. 45"
                 />
