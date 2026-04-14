@@ -18,12 +18,12 @@ def heatmap_to_signal(heatmap: np.ndarray) -> np.ndarray:
     hm_exp = np.exp(heatmap - heatmap.max(axis=0, keepdims=True))
     prob   = hm_exp / (hm_exp.sum(axis=0, keepdims=True) + eps)
 
-    # Expectation (5th place) - previously used as base, causing smoothing
-    # y_exp = (prob * y_idx[:, None]).sum(axis=0)
+    # Expectation (5th place)
+    y_exp = (prob * y_idx[:, None]).sum(axis=0)
 
-    # Parabolic refinement (3rd place) - UPDATED FOR SHARPNESS
+    # Parabolic refinement (3rd place)
     y_int = np.argmax(prob, axis=0)
-    y_ref = y_int.astype(np.float32)  # Use argmax natively to preserve sharp peaks
+    y_ref = y_exp.copy()
 
     for x in range(W):
         yi = y_int[x]
@@ -33,9 +33,7 @@ def heatmap_to_signal(heatmap: np.ndarray) -> np.ndarray:
             yr = prob[yi+1, x]
             d  = yl - 2*yc + yr
             if abs(d) > 1e-8:
-                offset = (yl - yr) / (2 * d)
-                if abs(offset) <= 1.0:
-                    y_ref[x] = yi + offset
+                y_ref[x] = yi + (yl - yr) / (2 * d)
 
     return y_ref  # pixel coords (W,)
 

@@ -1,204 +1,173 @@
 # new_pipeline/stage7_classification/classify.py
 
-import numpy as np
 import torch
+import numpy as np
+import json
+import os
+import requests
+from huggingface_hub import hf_hub_download
+
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+REPO_ID  = "Ashish4816/ecg-model"
+
+# ── Model architecture (same as training) ────────────────────────────────────
 import torch.nn as nn
-from .labels import (DIAGNOSTIC_SUBCLASSES, RHYTHM_CLASSES,
-                      get_severity, LEAD_ORDER)
 
-LEAD_ORDER = ['I','II','III','aVR','aVL','aVF',
-              'V1','V2','V3','V4','V5','V6']
+class SEBlock1D(nn.Module):
+    def __init__(self,ch,reduction=16):
+        super().__init__()
+        self.se=nn.Sequential(nn.AdaptiveAvgPool1d(1),nn.Flatten(),
+            nn.Linear(ch,ch//reduction,bias=False),nn.GELU(),
+            nn.Linear(ch//reduction,ch,bias=False),nn.Sigmoid())
+    def forward(self,x): return x*self.se(x).unsqueeze(-1)
 
+class ResBlock1D(nn.Module):
+    def __init__(self,ch,kernel=9,dilation=1):
+        super().__init__()
+        pad=(kernel-1)*dilation//2
+        self.net=nn.Sequential(
+            nn.Conv1d(ch,ch,kernel,padding=pad,dilation=dilation,bias=False),
+            nn.BatchNorm1d(ch),nn.GELU(),
+            nn.Conv1d(ch,ch,kernel,padding=pad,dilation=dilation,bias=False),
+            nn.BatchNorm1d(ch))
+        self.se=SEBlock1D(ch); self.act=nn.GELU()
+    def forward(self,x): return self.act(x+self.se(self.net(x)))
+
+class MultiScaleBlock(nn.Module):
+    def __init__(self,in_ch,out_ch):
+        super().__init__()
+        mid=out_ch//4
+        self.b1=nn.Sequential(nn.Conv1d(in_ch,mid,3,padding=1,bias=False),nn.BatchNorm1d(mid),nn.GELU())
+        self.b2=nn.Sequential(nn.Conv1d(in_ch,mid,7,padding=3,bias=False),nn.BatchNorm1d(mid),nn.GELU())
+        self.b3=nn.Sequential(nn.Conv1d(in_ch,mid,15,padding=7,bias=False),nn.BatchNorm1d(mid),nn.GELU())
+        self.b4=nn.Sequential(nn.Conv1d(in_ch,mid,31,padding=15,bias=False),nn.BatchNorm1d(mid),nn.GELU())
+        self.proj=nn.Sequential(nn.Conv1d(out_ch,out_ch,1,bias=False),nn.BatchNorm1d(out_ch),nn.GELU())
+    def forward(self,x): return self.proj(torch.cat([self.b1(x),self.b2(x),self.b3(x),self.b4(x)],dim=1))
+
+class DilatedBlock(nn.Module):
+    def __init__(self,ch):
+        super().__init__()
+        self.d1=ResBlock1D(ch,9,1); self.d2=ResBlock1D(ch,9,2)
+        self.d4=ResBlock1D(ch,9,4); self.d8=ResBlock1D(ch,9,8)
+    def forward(self,x): return self.d8(self.d4(self.d2(self.d1(x))))
 
 class ECGClassifier(nn.Module):
-    """
-    EfficientNet-based ECG classifier.
-    Input:  (B, 12, 5000) — 12-lead signal
-    Output: diagnostic + rhythm predictions
-    """
-    def __init__(self,
-                  n_diagnostic: int = 44,
-                  n_rhythm: int = 23):
+    def __init__(self,n_diag=44,n_rhythm=12):
         super().__init__()
+        self.stem=nn.Sequential(
+            nn.Conv1d(12,64,15,padding=7,bias=False),nn.BatchNorm1d(64),nn.GELU(),
+            nn.Conv1d(64,64,15,padding=7,bias=False),nn.BatchNorm1d(64),nn.GELU())
+        self.stage1=nn.Sequential(MultiScaleBlock(64,128),ResBlock1D(128,9),ResBlock1D(128,9),nn.MaxPool1d(2))
+        self.stage2=nn.Sequential(MultiScaleBlock(128,256),ResBlock1D(256,7),ResBlock1D(256,7),nn.MaxPool1d(2))
+        self.stage3=nn.Sequential(MultiScaleBlock(256,512),ResBlock1D(512,5),ResBlock1D(512,5),nn.MaxPool1d(2))
+        self.stage4=nn.Sequential(MultiScaleBlock(512,512),ResBlock1D(512,5),ResBlock1D(512,5),nn.MaxPool1d(2))
+        self.stage5=DilatedBlock(512)
+        self.avg_pool=nn.AdaptiveAvgPool1d(1); self.max_pool=nn.AdaptiveMaxPool1d(1)
+        self.proj=nn.Sequential(nn.Flatten(),nn.Linear(1024,512),nn.GELU(),nn.Dropout(0.3))
+        self.diag_head=nn.Sequential(nn.Linear(512,256),nn.GELU(),nn.Dropout(0.4),
+            nn.Linear(256,128),nn.GELU(),nn.Dropout(0.3),nn.Linear(128,n_diag))
+        self.rhythm_head=nn.Sequential(nn.Linear(512,128),nn.GELU(),nn.Dropout(0.4),
+            nn.Linear(128,64),nn.GELU(),nn.Dropout(0.3),nn.Linear(64,n_rhythm))
 
-        # 1D signal encoder
-        self.encoder = nn.Sequential(
-            nn.Conv1d(12, 64,  kernel_size=15, padding=7),
-            nn.BatchNorm1d(64), nn.GELU(),
-            nn.Conv1d(64, 128, kernel_size=15, padding=7, stride=2),
-            nn.BatchNorm1d(128), nn.GELU(),
-            nn.Conv1d(128, 256, kernel_size=11, padding=5, stride=2),
-            nn.BatchNorm1d(256), nn.GELU(),
-            nn.Conv1d(256, 512, kernel_size=9,  padding=4, stride=2),
-            nn.BatchNorm1d(512), nn.GELU(),
-            nn.Conv1d(512, 512, kernel_size=9,  padding=4, stride=2),
-            nn.BatchNorm1d(512), nn.GELU(),
-            nn.AdaptiveAvgPool1d(1),
-        )
+    def forward(self,x):
+        x=self.stem(x); x=self.stage1(x); x=self.stage2(x)
+        x=self.stage3(x); x=self.stage4(x); x=self.stage5(x)
+        feat=torch.cat([self.avg_pool(x).squeeze(-1),
+                        self.max_pool(x).squeeze(-1)],dim=1)
+        feat=self.proj(feat)
+        return self.diag_head(feat),self.rhythm_head(feat)
 
-        self.diagnostic_head = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(512, 256),
-            nn.GELU(),
-            nn.Dropout(0.3),
-            nn.Linear(256, n_diagnostic)
-        )
+# ── Singleton loader ──────────────────────────────────────────────────────────
+class ECGClassifierService:
+    _instance = None
 
-        self.rhythm_head = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(512, 128),
-            nn.GELU(),
-            nn.Dropout(0.3),
-            nn.Linear(128, n_rhythm)
-        )
+    @classmethod
+    def get(cls):
+        if cls._instance is None:
+            cls._instance = cls._load()
+        return cls._instance
 
-    def forward(self, x):
-        feat = self.encoder(x)
-        return self.diagnostic_head(feat), self.rhythm_head(feat)
+    @classmethod
+    def _load(cls):
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+        # Download from HF
+        local_path = "/tmp/ecg_classifier.pth"
+        if not os.path.exists(local_path):
+            print("Downloading ecg_classifier.pth from HF...")
+            url = f"https://huggingface.co/{REPO_ID}/resolve/main/ecg_classifier.pth"
+            headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+            r = requests.get(url, headers=headers, stream=True)
+            r.raise_for_status()
+            with open(local_path, 'wb') as f:
+                for chunk in r.iter_content(8192):
+                    f.write(chunk)
+            print("✅ Downloaded!")
 
-def load_classifier(weights_path: str,
-                     device: str = 'cpu') -> ECGClassifier:
-    """Load trained classifier from checkpoint."""
-    model = ECGClassifier()
-    ckpt  = torch.load(weights_path, map_location=device)
+        ckpt = torch.load(local_path, map_location=device)
+        diag_classes   = ckpt.get('diag_classes', [])
+        rhythm_classes = ckpt.get('rhythm_classes', [])
 
-    # Handle different checkpoint formats
-    if 'model_state_dict' in ckpt:
-        model.load_state_dict(ckpt['model_state_dict'])
-    else:
-        model.load_state_dict(ckpt)
+        model = ECGClassifier(
+            n_diag=len(diag_classes),
+            n_rhythm=len(rhythm_classes)
+        ).to(device)
 
-    model.eval()
-    return model.to(device)
+        state = {k.replace('module.',''):v
+                 for k,v in ckpt['model_state_dict'].items()}
+        model.load_state_dict(state)
+        model.eval()
 
+        print(f"✅ ECGClassifier loaded | "
+              f"Diag: {len(diag_classes)} | Rhythm: {len(rhythm_classes)}")
 
-def classify_ecg(ecg_array: np.ndarray,
-                  classifier: ECGClassifier,
-                  device: str = 'cpu',
-                  threshold: float = 0.5) -> dict:
-    """
-    Full classification pipeline.
-    Input:  ecg_array (12, 5000)
-    Output: complete diagnostic report dict
-    """
-    # Normalize input
-    ecg = ecg_array.copy().astype(np.float32)
-    mean = ecg.mean(axis=1, keepdims=True)
-    std  = ecg.std(axis=1,  keepdims=True) + 1e-8
-    ecg  = (ecg - mean) / std
-
-    # To tensor
-    x = torch.from_numpy(ecg).unsqueeze(0).to(device)  # (1, 12, 5000)
-
-    with torch.no_grad():
-        diag_logits, rhythm_logits = classifier(x)
-
-    diag_probs   = torch.sigmoid(diag_logits)[0].cpu().numpy()
-    rhythm_probs = torch.sigmoid(rhythm_logits)[0].cpu().numpy()
-
-    # ── Diagnostic Results ────────────────────────────────────────────────────
-    diag_keys  = list(DIAGNOSTIC_SUBCLASSES.keys())
-    rhythm_keys = list(RHYTHM_CLASSES.keys())
-
-    # All findings above threshold
-    findings = []
-    for i, (code, prob) in enumerate(zip(diag_keys, diag_probs)):
-        if prob >= threshold:
-            findings.append({
-                'code':        code,
-                'description': DIAGNOSTIC_SUBCLASSES[code],
-                'confidence':  float(round(prob, 4)),
-                'severity':    get_severity(code),
-            })
-
-    # Sort by confidence
-    findings.sort(key=lambda x: x['confidence'], reverse=True)
-
-    # ── Rhythm Results ────────────────────────────────────────────────────────
-    rhythms = []
-    for i, (code, prob) in enumerate(zip(rhythm_keys, rhythm_probs)):
-        if prob >= threshold:
-            rhythms.append({
-                'code':        code,
-                'description': RHYTHM_CLASSES[code],
-                'confidence':  float(round(prob, 4)),
-            })
-    rhythms.sort(key=lambda x: x['confidence'], reverse=True)
-
-    # ── Primary Diagnosis ─────────────────────────────────────────────────────
-    primary = findings[0] if findings else {
-        'code': 'NORM', 'description': 'Normal ECG',
-        'confidence': float(round(float(diag_probs[0]), 4)),
-        'severity': 'LOW'
-    }
-
-    # ── Overall Severity ──────────────────────────────────────────────────────
-    severities = [f['severity'] for f in findings]
-    if 'CRITICAL' in severities:
-        overall_severity = 'CRITICAL'
-    elif 'HIGH' in severities:
-        overall_severity = 'HIGH'
-    elif 'MEDIUM' in severities:
-        overall_severity = 'MEDIUM'
-    else:
-        overall_severity = 'LOW'
-
-    # ── Signal Quality ────────────────────────────────────────────────────────
-    signal_quality = _assess_signal_quality(ecg_array)
-
-    # ── Full Report ───────────────────────────────────────────────────────────
-    return {
-        'primary_diagnosis':  primary,
-        'all_findings':       findings,
-        'rhythm':             rhythms[0] if rhythms else None,
-        'all_rhythms':        rhythms,
-        'overall_severity':   overall_severity,
-        'signal_quality':     signal_quality,
-        'raw_scores': {
-            'diagnostic': {diag_keys[i]: float(round(float(p), 4))
-                           for i, p in enumerate(diag_probs)},
-            'rhythm':     {rhythm_keys[i]: float(round(float(p), 4))
-                           for i, p in enumerate(rhythm_probs)},
-        }
-    }
-
-
-def _assess_signal_quality(ecg: np.ndarray) -> dict:
-    """Basic signal quality assessment."""
-    qualities = {}
-    for i, lead in enumerate(LEAD_ORDER):
-        sig  = ecg[i]
-        snr  = _estimate_snr(sig)
-        flat = float(np.std(sig)) < 0.01
-        qualities[lead] = {
-            'snr_db':    float(round(snr, 2)),
-            'is_flat':   flat,
-            'amplitude': float(round(float(np.ptp(sig)), 4)),
-            'quality':   'GOOD' if snr > 15 and not flat else
-                         'FAIR' if snr > 8  else 'POOR'
+        return {
+            'model': model,
+            'device': device,
+            'diag_classes': diag_classes,
+            'rhythm_classes': rhythm_classes
         }
 
-    overall = sum(1 for q in qualities.values()
-                  if q['quality'] == 'GOOD') / len(qualities)
+    @classmethod
+    def predict(cls, ecg_signal, threshold=0.5):
+        """
+        ecg_signal: numpy array (12, 5000)
+        returns: dict with diagnoses and rhythms
+        """
+        svc    = cls.get()
+        model  = svc['model']
+        device = svc['device']
 
-    return {
-        'per_lead':       qualities,
-        'overall_score':  float(round(overall, 2)),
-        'overall_quality': 'GOOD' if overall > 0.8 else
-                           'FAIR' if overall > 0.5 else 'POOR'
-    }
+        # Normalize
+        mean = ecg_signal.mean(axis=1, keepdims=True)
+        std  = ecg_signal.std(axis=1,  keepdims=True) + 1e-8
+        sig  = (ecg_signal - mean) / std
 
+        x = torch.from_numpy(sig).float().unsqueeze(0).to(device)
 
-def _estimate_snr(signal: np.ndarray) -> float:
-    """Quick SNR estimate using signal variance."""
-    from scipy.signal import butter, filtfilt
-    try:
-        b, a     = butter(4, [0.5/250, 40/250], btype='band')
-        filtered = filtfilt(b, a, signal)
-        noise    = signal - filtered
-        sp       = np.mean(filtered**2)
-        np_      = np.mean(noise**2)
-        return 10*np.log10(sp/(np_+1e-10)) if np_ > 1e-10 else 50.0
-    except:
-        return 20.0
+        with torch.no_grad():
+            d_logits, r_logits = model(x)
+            d_probs = torch.sigmoid(d_logits)[0].cpu().numpy()
+            r_probs = torch.sigmoid(r_logits)[0].cpu().numpy()
+
+        diagnoses = [
+            {"code": svc['diag_classes'][i],
+             "probability": float(d_probs[i])}
+            for i in range(len(svc['diag_classes']))
+            if d_probs[i] >= threshold
+        ]
+        rhythms = [
+            {"code": svc['rhythm_classes'][i],
+             "probability": float(r_probs[i])}
+            for i in range(len(svc['rhythm_classes']))
+            if r_probs[i] >= threshold
+        ]
+
+        diagnoses.sort(key=lambda x: -x['probability'])
+        rhythms.sort(key=lambda x:   -x['probability'])
+
+        return {
+            "diagnoses": diagnoses,
+            "rhythms":   rhythms,
+            "top_diagnosis": diagnoses[0] if diagnoses else None,
+        }
