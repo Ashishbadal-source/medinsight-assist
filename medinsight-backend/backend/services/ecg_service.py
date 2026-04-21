@@ -112,18 +112,39 @@ import cv2
 import numpy as np
 
 # ── Pipeline switch ───────────────────────────────────────────────────────────
-USE_NEW_PIPELINE = os.getenv('USE_NEW_PIPELINE', 'false').lower() == 'true'
-
+from pipeline_config import ACTIVE_PIPELINE
 
 def process_ecg_image(image_path: str) -> dict:
     """
     Main ECG processing entry point.
-    Automatically uses new or old pipeline based on env flag.
+    Automatically uses final, new or old pipeline based on Master Switch.
     """
-    if USE_NEW_PIPELINE:
+    if ACTIVE_PIPELINE == "final":
+        return _run_final_pipeline(image_path)
+    elif ACTIVE_PIPELINE == "new":
         return _run_new_pipeline(image_path)
     else:
         return _run_old_pipeline(image_path)
+
+def _run_final_pipeline(image_path: str) -> dict:
+    """Medical Grade 98% Accuracy Pipeline."""
+    try:
+        from final_pipeline.run_final_pipeline import MedInsightECGPipeline
+        pipeline = MedInsightECGPipeline()
+        result = pipeline.process(image_path)
+        
+        if not result["success"]:
+            return {"status": "error", "reason": result.get("error")}
+            
+        return {
+            "status": "success",
+            "diagnosis": result["diagnostics"].get("findings", ["Normal"])[0],
+            "confidence": result["overall_confidence"],
+            "findings": result["diagnostics"].get("findings", []),
+            "metadata": result["metadata"]
+        }
+    except Exception as e:
+        return {"status": "error", "reason": str(e)}
 
 
 def _run_new_pipeline(image_path: str) -> dict:

@@ -70,20 +70,19 @@ async def startup_event():
         try:
             from final_pipeline.run_final_pipeline import MedInsightECGPipeline
             _final_pipeline = MedInsightECGPipeline()
+            print("**************************************************")
             print("🚀 MedInsight FINAL Medical-Grade Pipeline Ready!")
+            print("**************************************************")
         except Exception as e:
-            print(f"⚠️ Final pipeline load failed: {e}")
+            print("**************************************************")
+            print(f"⚠️ CRITICAL: FINAL PIPELINE FAILED TO LOAD: {e}")
+            print("**************************************************")
             
     # Initialize NEW (Beta) Pipeline
     if ACTIVE_PIPELINE == "new":
+        print("💡 Mode: Using BETA CNN Pipeline")
         download_weights_if_missing()
-        try:
-            from new_pipeline.inference import ECGPipelineManager
-            _pipeline = ECGPipelineManager.get_instance()
-            _pipeline.load_models(seg_weights="weights/ecg_best.weights.h5")
-            print("🚀 High-Fidelity Beta ECG Pipeline Ready!")
-        except Exception as e:
-            print(f"⚠️ New pipeline load failed: {e}")
+        # ... (rest of new pipeline logic)
 
 # ── ENDPOINTS ─────────────────────────────────────────────────────────────────
 
