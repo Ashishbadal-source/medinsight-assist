@@ -31,9 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── CONFIGURATION & WEIGHTS ───────────────────────────────────────────────────
+# ── CONFIGURATION & PIPELINE SELECTOR ─────────────────────────────────────────
+from pipeline_config import ACTIVE_PIPELINE
 
-USE_NEW_PIPELINE = True  # Hardcoded to True for development/testing
 HF_TOKEN = os.getenv('HF_TOKEN', '')
 REPO_ID = os.getenv('HF_REPO_ID', 'Ashish4816/ecg-model')
 
@@ -63,17 +63,27 @@ def download_weights_if_missing():
 
 @app.on_event("startup")
 async def startup_event():
-    global _pipeline
-    if USE_NEW_PIPELINE:
+    global _pipeline, _final_pipeline
+    
+    # Initialize FINAL Pipeline
+    if ACTIVE_PIPELINE == "final":
+        try:
+            from final_pipeline.run_final_pipeline import MedInsightECGPipeline
+            _final_pipeline = MedInsightECGPipeline()
+            print("🚀 MedInsight FINAL Medical-Grade Pipeline Ready!")
+        except Exception as e:
+            print(f"⚠️ Final pipeline load failed: {e}")
+            
+    # Initialize NEW (Beta) Pipeline
+    if ACTIVE_PIPELINE == "new":
         download_weights_if_missing()
         try:
             from new_pipeline.inference import ECGPipelineManager
             _pipeline = ECGPipelineManager.get_instance()
             _pipeline.load_models(seg_weights="weights/ecg_best.weights.h5")
-            print("🚀 High-Fidelity ECG Pipeline Ready!")
+            print("🚀 High-Fidelity Beta ECG Pipeline Ready!")
         except Exception as e:
-            print(f"⚠️ New pipeline load failed: {e}. Reverting to legacy.")
-            globals()["USE_NEW_PIPELINE"] = False
+            print(f"⚠️ New pipeline load failed: {e}")
 
 # ── ENDPOINTS ─────────────────────────────────────────────────────────────────
 
@@ -84,8 +94,7 @@ def home():
 @app.get("/pipeline-status")
 def pipeline_status():
     return {
-        "active_pipeline": "new" if USE_NEW_PIPELINE else "old",
-        "new_pipeline_ready": USE_NEW_PIPELINE,
+        "active_pipeline": ACTIVE_PIPELINE,
         "repo_id": REPO_ID
     }
 
@@ -105,8 +114,24 @@ async def analyze_ecg(
         tmp_path = tmp.name
 
     try:
-        if USE_NEW_PIPELINE:
-            # ── New 7-Stage Pipeline ──────────────────────────────────────────
+        if ACTIVE_PIPELINE == "final":
+            # ── Final Medical-Grade Pipeline ──────────────────────────────────
+            result = _final_pipeline.process(tmp_path)
+            if not result.get("success"):
+                raise HTTPException(status_code=422, detail=result.get("error", "Processing failed"))
+            
+            return {
+                "success":       True,
+                "pipeline":      "final",
+                "diagnostics":   result['diagnostics'],
+                "quality":       result['quality_scores'],
+                "confidence":    result['overall_confidence'],
+                "signals":       result['signals'],
+                "metadata":      result['metadata']
+            }
+            
+        elif ACTIVE_PIPELINE == "new":
+            # ── Beta 7-Stage Pipeline ──────────────────────────────────────────
             result = _pipeline.run(tmp_path)
             if result.get('status') == 'error':
                 raise HTTPException(status_code=422, detail=result.get('message'))
