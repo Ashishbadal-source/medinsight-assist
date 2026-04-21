@@ -120,12 +120,20 @@ async def analyze_ecg(
             if not result.get("success"):
                 raise HTTPException(status_code=422, detail=result.get("error", "Processing failed"))
             
+            # Map Medical diagnostics to Frontend UI expected fields
+            summary = result['diagnostics']
+            findings_list = summary.get("findings", [])
+            primary_diag = "Normal Sinus Rhythm" if not findings_list else findings_list[0]
+            
             return {
                 "success":       True,
                 "pipeline":      "final",
-                "diagnostics":   result['diagnostics'],
+                "diagnosis":     primary_diag,
+                "findings":      findings_list,
+                "rhythms":       [summary.get("rhythm", "Unknown")],
+                "confidence":    round(result['overall_confidence'] * 100, 1),
+                "diagnostics":   summary,
                 "quality":       result['quality_scores'],
-                "confidence":    result['overall_confidence'],
                 "signals":       result['signals'],
                 "metadata":      result['metadata']
             }
