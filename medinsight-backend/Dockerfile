@@ -68,7 +68,9 @@ COPY --chown=user backend/ ./backend/
 COPY --chown=user ecg_pipeline/ ./ecg_pipeline/
 COPY --chown=user blood_pipeline/ ./blood_pipeline/
 COPY --chown=user xray_pipeline/ ./xray_pipeline/
-
+COPY --chown=user final_pipeline/ ./final_pipeline/
+COPY --chown=user new_pipeline/ ./new_pipeline/
+COPY --chown=user pipeline_config.py ./
 COPY --chown=user .env* ./
 
 WORKDIR /app/backend
