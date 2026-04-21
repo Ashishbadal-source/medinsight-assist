@@ -126,6 +126,7 @@ async def analyze_ecg(
             
             return {
                 "success":       True,
+                "signature":     "MEDINSIGHT_FINAL_V1",
                 "pipeline":      "final",
                 "diagnosis":     primary_diag,
                 "findings":      findings_list,

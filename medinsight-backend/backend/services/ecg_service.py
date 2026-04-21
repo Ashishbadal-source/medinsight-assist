@@ -138,6 +138,7 @@ def _run_final_pipeline(image_path: str) -> dict:
             
         return {
             "status": "success",
+            "signature": "MEDINSIGHT_FINAL_V1",
             "diagnosis": result["diagnostics"].get("findings", ["Normal"])[0],
             "confidence": result["overall_confidence"],
             "findings": result["diagnostics"].get("findings", []),
