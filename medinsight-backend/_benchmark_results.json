@@ -1,0 +1,336 @@
+{
+  "summary": {
+    "OLD pipeline (ecg_pipeline)": {
+      "TP": 6,
+      "TN": 0,
+      "FP": 6,
+      "FN": 0,
+      "total": 12,
+      "accuracy": 50.0,
+      "precision": 50.0,
+      "recall_TPR": 100.0,
+      "specificity_TNR": 0.0,
+      "f1_score": 66.7
+    },
+    "NEW pipeline (new_pipeline)": {
+      "TP": 6,
+      "TN": 0,
+      "FP": 6,
+      "FN": 0,
+      "total": 12,
+      "accuracy": 50.0,
+      "precision": 50.0,
+      "recall_TPR": 100.0,
+      "specificity_TNR": 0.0,
+      "f1_score": 66.7
+    },
+    "FINAL pipeline (step1_gate)": {
+      "TP": 6,
+      "TN": 6,
+      "FP": 0,
+      "FN": 0,
+      "total": 12,
+      "accuracy": 100.0,
+      "precision": 100.0,
+      "recall_TPR": 100.0,
+      "specificity_TNR": 100.0,
+      "f1_score": 100.0
+    }
+  },
+  "per_image": {
+    "OLD pipeline (ecg_pipeline)": [
+      {
+        "name": "ecg_standard_4strip",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_rotated_90",
+        "category": "positive_rotated",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_dense_grid",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_tilt_blur",
+        "category": "positive_degraded",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_rot180",
+        "category": "positive_rotated",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_3strip",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "blank_white_page",
+        "category": "negative_blank",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "random_noise",
+        "category": "negative_noise",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "non_ecg_on_grid",
+        "category": "negative_hard",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "person_photo",
+        "category": "negative_photo",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "sine_wave_chart",
+        "category": "negative_hard",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "text_document",
+        "category": "negative_document",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      }
+    ],
+    "NEW pipeline (new_pipeline)": [
+      {
+        "name": "ecg_standard_4strip",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_rotated_90",
+        "category": "positive_rotated",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_dense_grid",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_tilt_blur",
+        "category": "positive_degraded",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_rot180",
+        "category": "positive_rotated",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "ecg_3strip",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.5,
+        "ok": true
+      },
+      {
+        "name": "blank_white_page",
+        "category": "negative_blank",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "random_noise",
+        "category": "negative_noise",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "non_ecg_on_grid",
+        "category": "negative_hard",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "person_photo",
+        "category": "negative_photo",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "sine_wave_chart",
+        "category": "negative_hard",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      },
+      {
+        "name": "text_document",
+        "category": "negative_document",
+        "expected": false,
+        "got": true,
+        "confidence": 0.5,
+        "ok": false
+      }
+    ],
+    "FINAL pipeline (step1_gate)": [
+      {
+        "name": "ecg_standard_4strip",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.7247,
+        "ok": true
+      },
+      {
+        "name": "ecg_rotated_90",
+        "category": "positive_rotated",
+        "expected": true,
+        "got": true,
+        "confidence": 0.7522,
+        "ok": true
+      },
+      {
+        "name": "ecg_dense_grid",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.8044,
+        "ok": true
+      },
+      {
+        "name": "ecg_tilt_blur",
+        "category": "positive_degraded",
+        "expected": true,
+        "got": true,
+        "confidence": 0.7303,
+        "ok": true
+      },
+      {
+        "name": "ecg_rot180",
+        "category": "positive_rotated",
+        "expected": true,
+        "got": true,
+        "confidence": 0.7247,
+        "ok": true
+      },
+      {
+        "name": "ecg_3strip",
+        "category": "positive",
+        "expected": true,
+        "got": true,
+        "confidence": 0.7264,
+        "ok": true
+      },
+      {
+        "name": "blank_white_page",
+        "category": "negative_blank",
+        "expected": false,
+        "got": false,
+        "confidence": 0.0,
+        "ok": true
+      },
+      {
+        "name": "random_noise",
+        "category": "negative_noise",
+        "expected": false,
+        "got": false,
+        "confidence": 0.0,
+        "ok": true
+      },
+      {
+        "name": "non_ecg_on_grid",
+        "category": "negative_hard",
+        "expected": false,
+        "got": false,
+        "confidence": 0.0,
+        "ok": true
+      },
+      {
+        "name": "person_photo",
+        "category": "negative_photo",
+        "expected": false,
+        "got": false,
+        "confidence": 0.0,
+        "ok": true
+      },
+      {
+        "name": "sine_wave_chart",
+        "category": "negative_hard",
+        "expected": false,
+        "got": false,
+        "confidence": 0.0,
+        "ok": true
+      },
+      {
+        "name": "text_document",
+        "category": "negative_document",
+        "expected": false,
+        "got": false,
+        "confidence": 0.0,
+        "ok": true
+      }
+    ]
+  }
+}
