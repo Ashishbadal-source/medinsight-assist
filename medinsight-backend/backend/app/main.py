@@ -18,6 +18,11 @@ from app.auth import get_current_user
 
 app = FastAPI(title="MedInsight AI Backend — Clinical Dashboard")
 
+print("**************************************************")
+print(f"📍 SERVER RUNNING FROM: {os.path.abspath(__file__)}")
+print(f"📁 WORKING DIRECTORY: {os.getcwd()}")
+print("**************************************************")
+
 # ── CORS ──────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
