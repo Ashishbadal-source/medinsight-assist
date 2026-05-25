@@ -19,13 +19,15 @@ const ERROR_MESSAGES = {
   "Analysis failed": "❌ Analysis failed. Please make sure you uploaded the correct report type.",
 };
 
-const getFriendlyError = (message) => {
+const getFriendlyError = (message, reportType) => {
+  if (!message) return `❌ Analysis failed. Please try again with a valid ${reportType || "medical"} report.`;
   for (const [key, friendly] of Object.entries(ERROR_MESSAGES)) {
-    if (message?.toLowerCase().includes(key.toLowerCase())) {
+    if (message.toLowerCase().includes(key.toLowerCase())) {
       return friendly;
     }
   }
-  return `❌ Something went wrong. Please try again with a valid ${message?.includes("blood") ? "blood test" : "ECG"} report.`;
+  const typeStr = reportType || "medical";
+  return `❌ Something went wrong: ${message}. Please try again with a valid ${typeStr} report.`;
 };
 
 const Upload = () => {
@@ -141,7 +143,7 @@ const Upload = () => {
 
     } catch (err) {
       console.error(err);
-      setError(getFriendlyError(err.message));
+      setError(getFriendlyError(err.message, reportType));
     } finally {
       setLoading(false);
       setStatusMsg("");

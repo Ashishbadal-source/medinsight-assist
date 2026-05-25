@@ -38,5 +38,9 @@ def _extract_from_image(path: str) -> str:
     gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     
     custom_config = r'--oem 3 --psm 6'
-    text = pytesseract.image_to_string(gray, config=custom_config)
+    try:
+        text = pytesseract.image_to_string(gray, config=custom_config)
+    except pytesseract.TesseractNotFoundError:
+        print("WARNING: Tesseract OCR is not installed or not in PATH. Cannot extract text from image.")
+        text = ""
     return text

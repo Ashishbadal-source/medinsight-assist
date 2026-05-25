@@ -106,14 +106,16 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer
 import jwt
 import os
+from dotenv import load_dotenv
+
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".env"))
+load_dotenv(env_path)
 
 security = HTTPBearer()
 
-SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET", "")
-
 def get_current_user(token=Depends(security)):
     try:
-        secret = SUPABASE_JWT_SECRET
+        secret = os.getenv("SUPABASE_JWT_SECRET", "")
         if not secret:
             raise HTTPException(status_code=500, detail="JWT secret not configured")
         if isinstance(secret, bytes):

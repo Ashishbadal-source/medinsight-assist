@@ -12,7 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Ensure pipeline modules are discoverable
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BACKEND_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, BACKEND_ROOT)
 
 from app.auth import get_current_user
 
